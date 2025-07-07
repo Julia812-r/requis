@@ -169,7 +169,7 @@ if aba == "Nova Solicitação de Requisição":
         valor_total = 0.0
 
     confirmar_envio = st.checkbox("Confirmo que revisei todas as informações e desejo enviar a solicitação.")
-    enviar = st.button("Enviar Solicitação")
+enviar = st.button("Enviar Solicitação")
 
 if enviar:
     if not st.session_state.itens:
