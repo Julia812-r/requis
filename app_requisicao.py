@@ -186,26 +186,29 @@ if enviar:
             with open(caminho_arquivo, "wb") as f:
                 f.write(orcamento.read())
 
-        # Adiciona linha na planilha Google Sheets
-        worksheet.append_row([
-            numero,
-            nome,
-            metier,
-            tipo,
-            str(st.session_state.itens),
-            projeto,
-            novo_previsto,
-            demanda_tipo,
-            valor_total,
-            caminho_arquivo,
-            comentarios,
-            riscos,
-            "Aprovação Comitê de Compras",
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            tipo_compra
-        ])
+       # Adiciona linha na planilha Google Sheets com tratamento de erro
+try:
+    worksheet.append_row([
+        numero,
+        nome,
+        metier,
+        tipo,
+        str(st.session_state.itens),
+        projeto,
+        novo_previsto,
+        demanda_tipo,
+        valor_total,
+        caminho_arquivo,
+        comentarios,
+        riscos,
+        "Aprovação Comitê de Compras",
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        tipo_compra
+    ])
+    st.write("✅ Dados enviados para Google Sheets com sucesso!")
+except Exception as e:
+    st.error(f"❌ Erro ao enviar para Google Sheets: {e}")
 
-        st.write("✅ Dados enviados para Google Sheets com sucesso!")
 
         # Atualiza dataframe local e CSV
         nova_linha = pd.DataFrame([{
