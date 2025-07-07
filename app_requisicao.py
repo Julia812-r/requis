@@ -3,6 +3,26 @@ import pandas as pd
 import os
 import base64
 from datetime import datetime
+from google.oauth2.service_account import Credentials
+import gspread
+
+# Lê do secrets
+creds = Credentials.from_service_account_info(
+    st.secrets["google"],
+    scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+)
+
+gc = gspread.authorize(creds)
+
+# Substitua pelo seu ID real
+SHEET_ID = "1ZHpv75jvfM8XlLjwoSrWO3P2nrPPl6Grch9NAB_f_ZY"
+
+# Abre a planilha
+sh = gc.open_by_key(SHEET_ID)
+
+# Abre a aba desejada
+worksheet = sh.sheet1  # ou sh.worksheet("Nome_da_Aba")
+
 
 # Caminho dos arquivos
 REQ_FILE = "requisicoes.csv"
@@ -151,6 +171,7 @@ if aba == "Nova Solicitação de Requisição":
     confirmar_envio = st.checkbox("Confirmo que revisei todas as informações e desejo enviar a solicitação.")
     enviar = st.button("Enviar Solicitação")
     if enviar:
+
         if not st.session_state.itens:
             st.warning("Adicione ao menos um item antes de enviar.")
         elif not confirmar_envio:
@@ -164,6 +185,27 @@ if aba == "Nova Solicitação de Requisição":
                 caminho_arquivo = os.path.join("uploads", f"{numero}_{orcamento.name}")
                 with open(caminho_arquivo, "wb") as f:
                     f.write(orcamento.read())
+
+        # Aqui você adiciona a linha na sua planilha Google Sheets
+        worksheet.append_row([
+            numero,
+            nome,
+            metier,
+            tipo,
+            str(st.session_state.itens),
+            projeto,
+            novo_previsto,
+            demanda_tipo,
+            valor_total,
+            caminho_arquivo,
+            comentarios,
+            riscos,
+            "Aprovação Comitê de Compras",
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            tipo_compra
+        ])
+
+            
 
             nova_linha = pd.DataFrame([{
                 'Número Solicitação': numero,
