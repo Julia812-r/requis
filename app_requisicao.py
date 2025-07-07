@@ -172,21 +172,22 @@ if aba == "Nova Solicitação de Requisição":
     enviar = st.button("Enviar Solicitação")
     if enviar:
 
-        if not st.session_state.itens:
-            st.warning("Adicione ao menos um item antes de enviar.")
-        elif not confirmar_envio:
-            st.warning("Marque a caixa de confirmação antes de enviar a solicitação.")
-        else:
-            numero = gerar_numero()
-            caminho_arquivo = ""
+        if enviar:
+    if not st.session_state.itens:
+        st.warning("Adicione ao menos um item antes de enviar.")
+    elif not confirmar_envio:
+        st.warning("Marque a caixa de confirmação antes de enviar a solicitação.")
+    else:
+        numero = gerar_numero()
+        caminho_arquivo = ""
 
-            if orcamento:
-                os.makedirs("uploads", exist_ok=True)
-                caminho_arquivo = os.path.join("uploads", f"{numero}_{orcamento.name}")
-                with open(caminho_arquivo, "wb") as f:
-                    f.write(orcamento.read())
+        if orcamento:
+            os.makedirs("uploads", exist_ok=True)
+            caminho_arquivo = os.path.join("uploads", f"{numero}_{orcamento.name}")
+            with open(caminho_arquivo, "wb") as f:
+                f.write(orcamento.read())
 
-        # Aqui você adiciona a linha na sua planilha Google Sheets
+        # Adiciona linha na planilha Google Sheets
         worksheet.append_row([
             numero,
             nome,
@@ -205,30 +206,29 @@ if aba == "Nova Solicitação de Requisição":
             tipo_compra
         ])
 
-            
+        # Atualiza dataframe local e CSV
+        nova_linha = pd.DataFrame([{
+            'Número Solicitação': numero,
+            'Nome do Solicitante': nome,
+            'Métier': metier,
+            'Tipo': tipo,
+            'Itens': str(st.session_state.itens),
+            'Linha de Projeto': projeto,
+            'Produto Novo ou Previsto': novo_previsto,
+            'Demanda Nova ou Prevista': demanda_tipo,
+            'Valor Total': valor_total,
+            'Caminho Orçamento': caminho_arquivo,
+            'Comentários': comentarios,
+            'Riscos': riscos,
+            'Status': 'Aprovação Comitê de Compras',
+            'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'Tipo de Compra': tipo_compra
+        }])
 
-            nova_linha = pd.DataFrame([{
-                'Número Solicitação': numero,
-                'Nome do Solicitante': nome,
-                'Métier': metier,
-                'Tipo': tipo,
-                'Itens': str(st.session_state.itens),
-                'Linha de Projeto': projeto,
-                'Produto Novo ou Previsto': novo_previsto,
-                'Demanda Nova ou Prevista': demanda_tipo,
-                'Valor Total': valor_total,
-                'Caminho Orçamento': caminho_arquivo,
-                'Comentários': comentarios,
-                'Riscos': riscos,
-                'Status': 'Aprovação Comitê de Compras',
-                'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                'Tipo de Compra': tipo_compra
-            }])
-
-            st.session_state.df_requisicoes = pd.concat([st.session_state.df_requisicoes, nova_linha], ignore_index=True)
-            st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
-            st.session_state.itens = []
-            st.success(f"Solicitação enviada com sucesso! Número: {numero}")
+        st.session_state.df_requisicoes = pd.concat([st.session_state.df_requisicoes, nova_linha], ignore_index=True)
+        st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
+        st.session_state.itens = []
+        st.success(f"Solicitação enviada com sucesso! Número: {numero}")
 
 # ---- ABA STATUS ----
 elif aba == "Conferir Status de Solicitação":
