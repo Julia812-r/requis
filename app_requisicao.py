@@ -187,58 +187,51 @@ if enviar:
                 f.write(orcamento.read())
 
        # Adiciona linha na planilha Google Sheets com tratamento de erro
-try:
-    worksheet.append_row([
-        numero,
-        nome,
-        metier,
-        tipo,
-        str(st.session_state.itens),
-        projeto,
-        novo_previsto,
-        demanda_tipo,
-        valor_total,
-        caminho_arquivo,
-        comentarios,
-        riscos,
-        "Aprovação Comitê de Compras",
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        tipo_compra
-    ])
-    st.write("✅ Dados enviados para Google Sheets com sucesso!")
-except Exception as e:
-    st.error(f"❌ Erro ao enviar para Google Sheets: {e}")
+        try:
+            worksheet.append_row([
+                numero,
+                nome,
+                metier,
+                tipo,
+                str(st.session_state.itens),
+                projeto,
+                novo_previsto,
+                demanda_tipo,
+                valor_total,
+                caminho_arquivo,
+                comentarios,
+                riscos,
+                "Aprovação Comitê de Compras",
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                tipo_compra
+            ])
+            st.write("✅ Dados enviados para Google Sheets com sucesso!")
+        except Exception as e:
+            st.error(f"❌ Erro ao enviar para Google Sheets: {e}")
+            
+        # Atualiza dataframe local e CSV
+        nova_linha = pd.DataFrame([{
+            'Número Solicitação': numero,
+            'Nome do Solicitante': nome,
+            'Métier': metier,
+            'Tipo': tipo,
+            'Itens': str(st.session_state.itens),
+            'Linha de Projeto': projeto,
+            'Produto Novo ou Previsto': novo_previsto
+            'Demanda Nova ou Prevista': demanda_tipo,
+            'Valor Total': valor_total,
+            'Caminho Orçamento': caminho_arquivo,
+            'Comentários': comentarios,
+            'Riscos': riscos,
+            'Status': 'Aprovação Comitê de Compras',
+            'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'Tipo de Compra': tipo_compra
+        }])
 
-# Atualiza dataframe local e CSV
-nova_linha = pd.DataFrame([{
-    'Número Solicitação': numero,
-    'Nome do Solicitante': nome,
-    'Métier': metier,
-    'Tipo': tipo,
-    'Itens': str(st.session_state.itens),
-    'Linha de Projeto': projeto,
-    'Produto Novo ou Previsto': novo_previsto,
-    'Demanda Nova ou Prevista': demanda_tipo,
-    'Valor Total': valor_total,
-    'Caminho Orçamento': caminho_arquivo,
-    'Comentários': comentarios,
-    'Riscos': riscos,
-    'Status': 'Aprovação Comitê de Compras',
-    'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    'Tipo de Compra': tipo_compra
-}])
-
-st.session_state.df_requisicoes = pd.concat([st.session_state.df_requisicoes, nova_linha], ignore_index=True)
-st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
-st.session_state.itens = []
-st.success(f"Solicitação enviada com sucesso! Número: {numero}")
-
-
-
-
-       
-      
-        
+        st.session_state.df_requisicoes = pd.concat([st.session_state.df_requisicoes, nova_linha], ignore_index=True)
+        st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
+        st.session_state.itens = []
+        st.success(f"Solicitação enviada com sucesso! Número: {numero}")        
 
 # ---- ABA STATUS ----
 elif aba == "Conferir Status de Solicitação":
