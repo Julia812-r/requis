@@ -170,9 +170,8 @@ if aba == "Nova Solicitação de Requisição":
 
     confirmar_envio = st.checkbox("Confirmo que revisei todas as informações e desejo enviar a solicitação.")
     enviar = st.button("Enviar Solicitação")
-    if enviar:
 
-        if enviar:
+if enviar:
     if not st.session_state.itens:
         st.warning("Adicione ao menos um item antes de enviar.")
     elif not confirmar_envio:
@@ -229,6 +228,9 @@ if aba == "Nova Solicitação de Requisição":
         st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
         st.session_state.itens = []
         st.success(f"Solicitação enviada com sucesso! Número: {numero}")
+
+
+        
 
 # ---- ABA STATUS ----
 elif aba == "Conferir Status de Solicitação":
