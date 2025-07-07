@@ -205,6 +205,8 @@ if enviar:
             tipo_compra
         ])
 
+        st.write("✅ Dados enviados para Google Sheets com sucesso!")
+
         # Atualiza dataframe local e CSV
         nova_linha = pd.DataFrame([{
             'Número Solicitação': numero,
