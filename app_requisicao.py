@@ -217,7 +217,7 @@ if enviar:
             'Tipo': tipo,
             'Itens': str(st.session_state.itens),
             'Linha de Projeto': projeto,
-            'Produto Novo ou Previsto': novo_previsto
+            'Produto Novo ou Previsto': novo_previsto,
             'Demanda Nova ou Prevista': demanda_tipo,
             'Valor Total': valor_total,
             'Caminho Orçamento': caminho_arquivo,
