@@ -3,6 +3,15 @@ import pandas as pd
 import os
 import base64
 from datetime import datetime
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# Só inicializa uma vez
+if not firebase_admin._apps:
+    cred = credentials.Certificate(r"C:\Users\pm25625\Downloads\sistema-requisicao-13ef1-firebase-adminsdk-fbsvc-cccd61d4c5.json")
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
 
 # Caminho dos arquivos
 REQ_FILE = "requisicoes.csv"
@@ -184,8 +193,7 @@ if aba == "Nova Solicitação de Requisição":
                 'Tipo de Compra': tipo_compra
             }])
 
-            st.session_state.df_requisicoes = pd.concat([st.session_state.df_requisicoes, nova_linha], ignore_index=True)
-            st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
+            db.collection("requisicoes").add(nova_linha.to_dict(orient='records')[0])
             st.session_state.itens = []
             st.success(f"Solicitação enviada com sucesso! Número: {numero}")
 
@@ -194,7 +202,9 @@ elif aba == "Conferir Status de Solicitação":
     st.title("Consultar Status da Solicitação")
     filtro_nome = st.text_input("Filtrar por Nome")
     filtro_numero = st.text_input("Filtrar por Número da Solicitação")
-    df = st.session_state.df_requisicoes
+    docs = db.collection("requisicoes").stream()
+    df_data = [doc.to_dict() for doc in docs]
+    df = pd.DataFrame(df_data)
 
     if filtro_nome:
         df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
@@ -223,13 +233,20 @@ elif aba == "Solicitação Almox":
         add_item = st.form_submit_button("Adicionar Item")
 
         if add_item:
-            st.session_state.almox_itens.append({
-                'Nome do Solicitante': nome,
-                'MABEC': mabec,
-                'Descrição do Produto': descricao,
-                'Quantidade': quantidade,
-                'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            })
+            if not nome.strip():
+                st.warning("Informe o nome do solicitante antes de adicionar itens.")
+            elif not mabec.strip():
+                st.warning("Informe o MABEC.")
+            elif not descricao.strip():
+                st.warning("Informe a descrição do produto.")
+            else:
+                st.session_state.almox_itens.append({
+                    'Nome do Solicitante': nome.strip(),
+                    'MABEC': mabec.strip(),
+                    'Descrição do Produto': descricao.strip(),
+                    'Quantidade': quantidade,
+                    'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                })
 
     if st.session_state.almox_itens:
         st.write("Itens para enviar:")
@@ -238,21 +255,22 @@ elif aba == "Solicitação Almox":
             with col1:
                 st.markdown(f"{i+1}. MABEC: {item['MABEC']} — {item['Descrição do Produto']} (Qtd: {item['Quantidade']})")
             with col2:
-                if st.button("🗑️ Remover", key=f"remover_{i}"):
+                if st.button("🗑️ Remover", key=f"remover_almox_{i}"):
                     st.session_state.almox_itens.pop(i)
-                    st.rerun()
-
+                    st.experimental_rerun()
 
         confirmar_envio_almox = st.checkbox("Confirmo que revisei todas as informações e desejo enviar a solicitação.")
         if st.button("Enviar Solicitação de Almoxarifado"):
             if not confirmar_envio_almox:
                 st.warning("Marque a caixa de confirmação antes de enviar.")
             else:
-                nova_df = pd.DataFrame(st.session_state.almox_itens)
-                st.session_state.df_almox = pd.concat([st.session_state.df_almox, nova_df], ignore_index=True)
-                st.session_state.df_almox.to_csv(ALMOX_FILE, index=False)
+                # Enviar cada item para o Firestore na coleção 'almoxarifado'
+                for item in st.session_state.almox_itens:
+                    db.collection("almoxarifado").add(item)
+                
                 st.session_state.almox_itens = []
                 st.success("Solicitação de almoxarifado enviada com sucesso!")
+
 
 # ---- ABA HISTÓRICO ----
 elif aba == "Histórico (Acesso Restrito)":
@@ -260,7 +278,9 @@ elif aba == "Histórico (Acesso Restrito)":
     senha = st.text_input("Digite a senha de administrador", type="password")
 
     if senha == "admin123":
-        df = st.session_state.df_requisicoes
+        docs = db.collection("requisicoes").stream()
+        df_data = [doc.to_dict() for doc in docs]
+        df = pd.DataFrame(df_data)
 
         filtro_nome = st.text_input("Filtrar por nome (opcional)").strip()
         if filtro_nome:
@@ -288,43 +308,57 @@ elif aba == "Histórico (Acesso Restrito)":
             "Solicitação Recusada", "Cancelado"
         ])
         if st.button("Atualizar Status"):
-            idx = st.session_state.df_requisicoes.index[st.session_state.df_requisicoes['Número Solicitação'] == numero_req_atualizar]
-            if not idx.empty:
-                st.session_state.df_requisicoes.loc[idx, 'Status'] = novo_status
-                st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
-                st.success("Status atualizado com sucesso!")
-            else:
-                st.error("Número da solicitação não encontrado.")
+           docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
+           if docs:
+                for doc in docs:
+                db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
+         st.success("Status atualizado com sucesso!")
+           else:
+              st.error("Número da solicitação não encontrado.")
 
         st.subheader("Excluir Solicitação")
         excluir_numero = st.text_input("Digite o número da solicitação para excluir")
         if excluir_numero:
-            solicitacao = df[df['Número Solicitação'] == excluir_numero]
-            if not solicitacao.empty:
-                if st.button(f"Excluir Solicitação {excluir_numero}"):
-                    st.session_state.df_requisicoes = st.session_state.df_requisicoes[
-                        st.session_state.df_requisicoes['Número Solicitação'] != excluir_numero
-                    ]
-                    st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
-                    st.success(f"Solicitação {excluir_numero} excluída com sucesso!")
+            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", excluir_numero).stream())
+            if docs:
+                for doc in docs:
+                    db.collection("requisicoes").document(doc.id).delete()
+                st.success(f"Solicitação {excluir_numero} excluída com sucesso!")
             else:
                 st.error("Número de solicitação não encontrado.")
 
         st.subheader("Histórico de Solicitações ao Almoxarifado")
-        st.dataframe(st.session_state.df_almox, use_container_width=True)
 
+       docs_almox = db.collection("almoxarifado").stream()
+       df_almox = pd.DataFrame([doc.to_dict() for doc in docs_almox])
+
+       if df_almox.empty:
+           st.info("Nenhuma solicitação de almoxarifado encontrada.")
+       else:
+          st.dataframe(df_almox, use_container_width=True)
+           
         st.subheader("Excluir Solicitação do Almoxarifado")
-        if not st.session_state.df_almox.empty:
-            index_almox = st.number_input(
-                "Digite o índice da solicitação de almoxarifado a excluir",
-                min_value=0,
-                max_value=len(st.session_state.df_almox) - 1,
-                step=1
-            )
-            if st.button("Excluir Solicitação do Almoxarifado"):
-                st.session_state.df_almox = st.session_state.df_almox.drop(index_almox).reset_index(drop=True)
-                st.session_state.df_almox.to_csv(ALMOX_FILE, index=False)
-                st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
+
+# Listar IDs para exclusão
+docs_almox = list(db.collection("almoxarifado").stream())
+if not docs_almox:
+    st.info("Nenhuma solicitação para excluir.")
+else:
+    # Mostrar índice + algum dado para facilitar identificação
+    df_almox = pd.DataFrame([doc.to_dict() for doc in docs_almox])
+    st.dataframe(df_almox[['Nome do Solicitante', 'MABEC', 'Descrição do Produto', 'Quantidade', 'Data Solicitação']], use_container_width=True)
+
+    index_almox = st.number_input(
+        "Digite o índice da solicitação de almoxarifado a excluir",
+        min_value=0,
+        max_value=len(docs_almox) - 1,
+        step=1
+    )
+    if st.button("Excluir Solicitação do Almoxarifado"):
+        doc_id = docs_almox[index_almox].id
+        db.collection("almoxarifado").document(doc_id).delete()
+        st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
+
     elif senha != "":
         st.error("Senha incorreta.")
 
