@@ -110,7 +110,7 @@ aba = st.sidebar.selectbox("Selecione a aba", abas)
 if aba == "Nova Solicitação de Requisição":
     st.title("Nova Solicitação de Requisição")
 
-   if st.button("Testar gravação Firestore"):
+    if st.button("Testar gravação Firestore"):
         try:
             doc_ref = db.collection("teste_conexao").add({
                 "mensagem": "Teste de conexão Firestore",
