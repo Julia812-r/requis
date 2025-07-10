@@ -13,7 +13,7 @@ if not firebase_admin._apps:
     # Carregar a chave do secrets
     firebase_config = st.secrets["firebase"]
 
-    cred = credentials.Certificate(firebase_config)
+    cred = credentials.Certificate(dict(firebase_config))
     if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
 
