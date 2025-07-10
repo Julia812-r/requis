@@ -197,7 +197,6 @@ if aba == "Nova Solicitação de Requisição":
                 'Status': 'Aprovação Comitê de Compras',
                 'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 'Tipo de Compra': tipo_compra,
-                'Número da RC': ""  # Novo campo vazio ao criar a requisição
             }])
 
             db.collection("requisicoes").add(nova_linha.to_dict(orient='records')[0])
@@ -213,8 +212,6 @@ elif aba == "Conferir Status de Solicitação":
     df_data = [doc.to_dict() for doc in docs]
     df = pd.DataFrame(df_data)
 
-    if 'Número da RC' not in df.columns:
-        df['Número da RC'] = ""
 
     if filtro_nome:
         df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
@@ -224,8 +221,7 @@ elif aba == "Conferir Status de Solicitação":
     if df.empty:
         st.info("Nenhuma solicitação encontrada.")
     else:
-        # Mostrar o campo "Número da RC" junto na tabela
-        st.dataframe(df[['Número Solicitação', 'Nome do Solicitante', 'Status', 'Número da RC', 'Itens', 'Data Solicitação']], use_container_width=True)
+        st.dataframe(df[['Número Solicitação', 'Nome do Solicitante', 'Status', 'Itens', 'Data Solicitação']], use_container_width=True)
 
 # ---- ABA ALMOX ----
 elif aba == "Solicitação Almox":
@@ -292,8 +288,6 @@ elif aba == "Histórico (Acesso Restrito)":
         df_data = [doc.to_dict() for doc in docs]
         df = pd.DataFrame(df_data)
 
-        if 'Número da RC' not in df.columns:
-            df['Número da RC'] = ""
 
         filtro_nome = st.text_input("Filtrar por nome (opcional)").strip()
         if filtro_nome:
@@ -323,22 +317,16 @@ elif aba == "Histórico (Acesso Restrito)":
 
         numero_req_atualizar = st.text_input("Digite o número da solicitação para atualizar status").strip()
 
-        if st.button("Atualizar Status e RC"):
-            if not numero_req_atualizar:
-                st.warning("Digite um número de solicitação válido antes de atualizar.")
+        if st.button("Atualizar Status"):
+           docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
+            if docs:
+                for doc in docs:
+                    db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
+                st.success("Status atualizado com sucesso!")
             else:
-                docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
-                if docs:
-                    for doc in docs:
-                        update_data = {"Status": novo_status}
-                        if novo_numero_rc.strip():
-                            update_data["Número da RC"] = novo_numero_rc.strip()
-                        db.collection("requisicoes").document(doc.id).update(update_data)
-                    st.success("Status e número da RC atualizados com sucesso!")
-                else:
-                    st.error("Número da solicitação não encontrado.")
-                
-        st.subheader("Excluir Solicitação")
+                st.error("Número da solicitação não encontrado.")
+
+ st.subheader("Excluir Solicitação")
         excluir_numero = st.text_input("Digite o número da solicitação para excluir")
         if excluir_numero:
             docs = list(db.collection("requisicoes").where("Número Solicitação", "==", excluir_numero).stream())
