@@ -337,17 +337,17 @@ elif aba == "Histórico (Acesso Restrito)":
             else:
                 st.error("Número de solicitação não encontrado.")
 
-        st.subheader("Histórico de Solicitações ao Almoxarifado")
+    st.subheader("Histórico de Solicitações ao Almoxarifado")
 
-       docs_almox = db.collection("almoxarifado").stream()
-       df_almox = pd.DataFrame([doc.to_dict() for doc in docs_almox])
+    docs_almox = db.collection("almoxarifado").stream()
+    df_almox = pd.DataFrame([doc.to_dict() for doc in docs_almox])
 
-       if df_almox.empty:
-           st.info("Nenhuma solicitação de almoxarifado encontrada.")
-       else:
-          st.dataframe(df_almox, use_container_width=True)
+    if df_almox.empty:
+        st.info("Nenhuma solicitação de almoxarifado encontrada.")
+    else:
+        st.dataframe(df_almox, use_container_width=True)
            
-        st.subheader("Excluir Solicitação do Almoxarifado")
+    st.subheader("Excluir Solicitação do Almoxarifado")
 
 # Listar IDs para exclusão
 docs_almox = list(db.collection("almoxarifado").stream())
