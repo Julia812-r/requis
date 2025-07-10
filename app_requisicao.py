@@ -322,7 +322,7 @@ elif aba == "Histórico (Acesso Restrito)":
             if docs:
                 for doc in docs:
                     db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
-               st.success("Status atualizado com sucesso!")
+                st.success("Status atualizado com sucesso!")
            else:
                st.error("Número da solicitação não encontrado.")
 
