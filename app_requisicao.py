@@ -372,5 +372,5 @@ if excluir_numero:
                 db.collection("almoxarifado").document(doc_id).delete()
                 st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
 
-    elif senha != "":
+elif senha != "":
         st.error("Senha incorreta.")
