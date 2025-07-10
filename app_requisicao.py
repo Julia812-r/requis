@@ -119,17 +119,17 @@ if aba == "Nova Solicitação de Requisição":
     nome = st.text_input("Nome do Solicitante")
     metier = st.text_input("Métier")
     tipo = st.radio("É serviço ou produto?", ["Serviço", "Produto"])
-    novo_previsto = st.selectbox("É produto novo ou backup?", ["", "Novo", "Backup"], index=0)
     projeto = st.text_input("Linha de Projeto")
+    novo_previsto = st.selectbox("É produto novo ou backup?", ["", "Novo", "Backup"], index=0)
     demanda_tipo = st.radio("É uma demanda nova ou prevista?", ["Nova", "Prevista"])
     tipo_compra = st.radio("A compra é:", [
         "Ordinária (papelaria, limpeza, etc.)",
         "Emergenciais (situações imprevistas)",
         "Projetos (itens específicos para ações pontuais)",
-        "Serviços (transporte, manutenção, calibração, ensaios, etc.)"
+        "Serviços (transporte, manutenção, calibração, etc.)"
     ])
-    riscos = st.text_area("Riscos envolvidos na não execução desta demanda", height=150)
     comentarios = st.text_area("Comentários", height=150)
+    riscos = st.text_area("Riscos envolvidos na não execução desta demanda", height=150)
     orcamento = st.file_uploader("Anexar Orçamento (opcional)", type=["pdf", "jpg", "jpeg", "png", "doc", "docx"])
 
     st.subheader("Adicionar Itens da Solicitação")
@@ -196,7 +196,7 @@ if aba == "Nova Solicitação de Requisição":
                 'Riscos': riscos,
                 'Status': 'Aprovação Comitê de Compras',
                 'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                'Tipo de Compra': tipo_compra,
+                'Tipo de Compra': tipo_compra
             }])
 
             db.collection("requisicoes").add(nova_linha.to_dict(orient='records')[0])
@@ -211,7 +211,6 @@ elif aba == "Conferir Status de Solicitação":
     docs = db.collection("requisicoes").stream()
     df_data = [doc.to_dict() for doc in docs]
     df = pd.DataFrame(df_data)
-
 
     if filtro_nome:
         df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
@@ -288,7 +287,6 @@ elif aba == "Histórico (Acesso Restrito)":
         df_data = [doc.to_dict() for doc in docs]
         df = pd.DataFrame(df_data)
 
-
         filtro_nome = st.text_input("Filtrar por nome (opcional)").strip()
         if filtro_nome:
             df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
@@ -314,39 +312,25 @@ elif aba == "Histórico (Acesso Restrito)":
             "Aguardando entrega", "Entregue", "Serviço realizado", "Pago",
             "Solicitação Recusada", "Cancelado"
         ])
+        if st.button("Atualizar Status"):
+            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
+            if docs:
+                for doc in docs:
+                    db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
+                st.success("Status atualizado com sucesso!")
+            else:
+                st.error("Número da solicitação não encontrado.")
 
-st.subheader("Atualizar Status")
-numero_req_atualizar = st.text_input("Digite o número da solicitação para atualizar status").strip()
-novo_status = st.selectbox("Novo status", [
-    "Aprovação Comitê de Compras", "Criação da RC", "Aprovação Fabio Silva",
-    "Aprovação Federico Mateos", "Criação Pedido de Compra", "Aguardando Nota fiscal",
-    "Aguardando entrega", "Entregue", "Serviço realizado", "Pago",
-    "Solicitação Recusada", "Cancelado"
-])
-
-if st.button("Atualizar Status"):
-    if not numero_req_atualizar:
-        st.warning("Digite um número de solicitação válido antes de atualizar.")
-    else:
-        docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
-        if docs:
-            for doc in docs:
-                db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
-            st.success("Status atualizado com sucesso!")
-        else:
-            st.error("Número da solicitação não encontrado.")
-
-st.subheader("Excluir Solicitação")
-excluir_numero = st.text_input("Digite o número da solicitação para excluir").strip()
-if excluir_numero:
-    docs = list(db.collection("requisicoes").where("Número Solicitação", "==", excluir_numero).stream())
-    if docs:
-        for doc in docs:
-            db.collection("requisicoes").document(doc.id).delete()
-        st.success(f"Solicitação {excluir_numero} excluída com sucesso!")
-    else:
-        st.error("Número de solicitação não encontrado.")
-
+        st.subheader("Excluir Solicitação")
+        excluir_numero = st.text_input("Digite o número da solicitação para excluir")
+        if excluir_numero:
+            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", excluir_numero).stream())
+            if docs:
+                for doc in docs:
+                    db.collection("requisicoes").document(doc.id).delete()
+                st.success(f"Solicitação {excluir_numero} excluída com sucesso!")
+            else:
+                st.error("Número de solicitação não encontrado.")
 
         # Histórico de Solicitações ao Almoxarifado
         st.subheader("Histórico de Solicitações ao Almoxarifado")
@@ -372,5 +356,5 @@ if excluir_numero:
                 db.collection("almoxarifado").document(doc_id).delete()
                 st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
 
-elif senha != "":
-        st.error("Senha incorreta.")
+    elif senha != "":
+        st.error("Senha incorreta.")                    
