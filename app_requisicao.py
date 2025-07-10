@@ -119,17 +119,17 @@ if aba == "Nova Solicitação de Requisição":
     nome = st.text_input("Nome do Solicitante")
     metier = st.text_input("Métier")
     tipo = st.radio("É serviço ou produto?", ["Serviço", "Produto"])
-    projeto = st.text_input("Linha de Projeto")
     novo_previsto = st.selectbox("É produto novo ou backup?", ["", "Novo", "Backup"], index=0)
+    projeto = st.text_input("Linha de Projeto")
     demanda_tipo = st.radio("É uma demanda nova ou prevista?", ["Nova", "Prevista"])
     tipo_compra = st.radio("A compra é:", [
         "Ordinária (papelaria, limpeza, etc.)",
         "Emergenciais (situações imprevistas)",
         "Projetos (itens específicos para ações pontuais)",
-        "Serviços (transporte, manutenção, calibração, etc.)"
+        "Serviços (transporte, manutenção, calibração, ensaios, etc.)"
     ])
-    comentarios = st.text_area("Comentários", height=150)
     riscos = st.text_area("Riscos envolvidos na não execução desta demanda", height=150)
+    comentarios = st.text_area("Comentários", height=150)
     orcamento = st.file_uploader("Anexar Orçamento (opcional)", type=["pdf", "jpg", "jpeg", "png", "doc", "docx"])
 
     st.subheader("Adicionar Itens da Solicitação")
@@ -196,7 +196,8 @@ if aba == "Nova Solicitação de Requisição":
                 'Riscos': riscos,
                 'Status': 'Aprovação Comitê de Compras',
                 'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                'Tipo de Compra': tipo_compra
+                'Tipo de Compra': tipo_compra,
+                'Número da RC': ""  # Novo campo vazio ao criar a requisição
             }])
 
             db.collection("requisicoes").add(nova_linha.to_dict(orient='records')[0])
@@ -220,7 +221,8 @@ elif aba == "Conferir Status de Solicitação":
     if df.empty:
         st.info("Nenhuma solicitação encontrada.")
     else:
-        st.dataframe(df[['Número Solicitação', 'Nome do Solicitante', 'Status', 'Itens', 'Data Solicitação']], use_container_width=True)
+        # Mostrar o campo "Número da RC" junto na tabela
+        st.dataframe(df[['Número Solicitação', 'Nome do Solicitante', 'Status', 'Número da RC', 'Itens', 'Data Solicitação']], use_container_width=True)
 
 # ---- ABA ALMOX ----
 elif aba == "Solicitação Almox":
@@ -312,15 +314,21 @@ elif aba == "Histórico (Acesso Restrito)":
             "Aguardando entrega", "Entregue", "Serviço realizado", "Pago",
             "Solicitação Recusada", "Cancelado"
         ])
-        if st.button("Atualizar Status"):
+
+        novo_numero_rc = st.text_input("Número da RC (deixe em branco para não alterar)")
+
+        if st.button("Atualizar Status e RC"):
             docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
             if docs:
                 for doc in docs:
-                    db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
-                st.success("Status atualizado com sucesso!")
+                    update_data = {"Status": novo_status}
+                    if novo_numero_rc.strip():
+                        update_data["Número da RC"] = novo_numero_rc.strip()
+                    db.collection("requisicoes").document(doc.id).update(update_data)
+                st.success("Status e número da RC atualizados com sucesso!")
             else:
                 st.error("Número da solicitação não encontrado.")
-
+                
         st.subheader("Excluir Solicitação")
         excluir_numero = st.text_input("Digite o número da solicitação para excluir")
         if excluir_numero:
