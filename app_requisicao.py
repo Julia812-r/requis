@@ -8,8 +8,14 @@ from firebase_admin import credentials, firestore
 
 # Só inicializa uma vez
 if not firebase_admin._apps:
-    cred = credentials.Certificate(r"C:\Users\pm25625\Downloads\sistema-requisicao-13ef1-firebase-adminsdk-fbsvc-cccd61d4c5.json")
-    firebase_admin.initialize_app(cred)
+    import json
+
+    # Carregar a chave do secrets
+    firebase_config = json.loads(st.secrets["firebase"])
+
+    cred = credentials.Certificate(firebase_config)
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
