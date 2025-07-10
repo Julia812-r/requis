@@ -3,26 +3,6 @@ import pandas as pd
 import os
 import base64
 from datetime import datetime
-from google.oauth2.service_account import Credentials
-import gspread
-
-# Lê do secrets
-creds = Credentials.from_service_account_info(
-    st.secrets["google"],
-    scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-)
-
-gc = gspread.authorize(creds)
-
-# Substitua pelo seu ID real
-SHEET_ID = "1ZHpv75jvfM8XlLjwoSrWO3P2nrPPl6Grch9NAB_f_ZY"
-
-# Abre a planilha
-sh = gc.open_by_key(SHEET_ID)
-
-# Abre a aba desejada
-worksheet = sh.sheet1  # ou sh.worksheet("Nome_da_Aba")
-
 
 # Caminho dos arquivos
 REQ_FILE = "requisicoes.csv"
@@ -169,69 +149,45 @@ if aba == "Nova Solicitação de Requisição":
         valor_total = 0.0
 
     confirmar_envio = st.checkbox("Confirmo que revisei todas as informações e desejo enviar a solicitação.")
-enviar = st.button("Enviar Solicitação")
+    enviar = st.button("Enviar Solicitação")
+    if enviar:
 
-if enviar:
-    if not st.session_state.itens:
-        st.warning("Adicione ao menos um item antes de enviar.")
-    elif not confirmar_envio:
-        st.warning("Marque a caixa de confirmação antes de enviar a solicitação.")
-    else:
-        numero = gerar_numero()
-        caminho_arquivo = ""
+        if not st.session_state.itens:
+            st.warning("Adicione ao menos um item antes de enviar.")
+        elif not confirmar_envio:
+            st.warning("Marque a caixa de confirmação antes de enviar a solicitação.")
+        else:
+            numero = gerar_numero()
+            caminho_arquivo = ""
 
-        if orcamento:
-            os.makedirs("uploads", exist_ok=True)
-            caminho_arquivo = os.path.join("uploads", f"{numero}_{orcamento.name}")
-            with open(caminho_arquivo, "wb") as f:
-                f.write(orcamento.read())
+            if orcamento:
+                os.makedirs("uploads", exist_ok=True)
+                caminho_arquivo = os.path.join("uploads", f"{numero}_{orcamento.name}")
+                with open(caminho_arquivo, "wb") as f:
+                    f.write(orcamento.read())
 
-       # Adiciona linha na planilha Google Sheets com tratamento de erro
-        try:
-            worksheet.append_row([
-                numero,
-                nome,
-                metier,
-                tipo,
-                str(st.session_state.itens),
-                projeto,
-                novo_previsto,
-                demanda_tipo,
-                valor_total,
-                caminho_arquivo,
-                comentarios,
-                riscos,
-                "Aprovação Comitê de Compras",
-                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                tipo_compra
-            ])
-            st.write("✅ Dados enviados para Google Sheets com sucesso!")
-        except Exception as e:
-            st.error(f"❌ Erro ao enviar para Google Sheets: {e}")
-            
-        # Atualiza dataframe local e CSV
-        nova_linha = pd.DataFrame([{
-            'Número Solicitação': numero,
-            'Nome do Solicitante': nome,
-            'Métier': metier,
-            'Tipo': tipo,
-            'Itens': str(st.session_state.itens),
-            'Linha de Projeto': projeto,
-            'Produto Novo ou Previsto': novo_previsto,
-            'Demanda Nova ou Prevista': demanda_tipo,
-            'Valor Total': valor_total,
-            'Caminho Orçamento': caminho_arquivo,
-            'Comentários': comentarios,
-            'Riscos': riscos,
-            'Status': 'Aprovação Comitê de Compras',
-            'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            'Tipo de Compra': tipo_compra
-        }])
+            nova_linha = pd.DataFrame([{
+                'Número Solicitação': numero,
+                'Nome do Solicitante': nome,
+                'Métier': metier,
+                'Tipo': tipo,
+                'Itens': str(st.session_state.itens),
+                'Linha de Projeto': projeto,
+                'Produto Novo ou Previsto': novo_previsto,
+                'Demanda Nova ou Prevista': demanda_tipo,
+                'Valor Total': valor_total,
+                'Caminho Orçamento': caminho_arquivo,
+                'Comentários': comentarios,
+                'Riscos': riscos,
+                'Status': 'Aprovação Comitê de Compras',
+                'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'Tipo de Compra': tipo_compra
+            }])
 
-        st.session_state.df_requisicoes = pd.concat([st.session_state.df_requisicoes, nova_linha], ignore_index=True)
-        st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
-        st.session_state.itens = []
-        st.success(f"Solicitação enviada com sucesso! Número: {numero}")        
+            st.session_state.df_requisicoes = pd.concat([st.session_state.df_requisicoes, nova_linha], ignore_index=True)
+            st.session_state.df_requisicoes.to_csv(REQ_FILE, index=False)
+            st.session_state.itens = []
+            st.success(f"Solicitação enviada com sucesso! Número: {numero}")
 
 # ---- ABA STATUS ----
 elif aba == "Conferir Status de Solicitação":
@@ -371,3 +327,4 @@ elif aba == "Histórico (Acesso Restrito)":
                 st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
     elif senha != "":
         st.error("Senha incorreta.")
+
