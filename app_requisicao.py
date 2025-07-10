@@ -213,6 +213,9 @@ elif aba == "Conferir Status de Solicitação":
     df_data = [doc.to_dict() for doc in docs]
     df = pd.DataFrame(df_data)
 
+    if 'Número da RC' not in df.columns:
+    df['Número da RC'] = ""
+
     if filtro_nome:
         df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
     if filtro_numero:
@@ -288,6 +291,9 @@ elif aba == "Histórico (Acesso Restrito)":
         docs = db.collection("requisicoes").stream()
         df_data = [doc.to_dict() for doc in docs]
         df = pd.DataFrame(df_data)
+
+        if 'Número da RC' not in df.columns:
+            df['Número da RC'] = ""
 
         filtro_nome = st.text_input("Filtrar por nome (opcional)").strip()
         if filtro_nome:
