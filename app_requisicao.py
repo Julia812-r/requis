@@ -11,7 +11,7 @@ if not firebase_admin._apps:
     import json
 
     # Carregar a chave do secrets
-    firebase_config = json.loads(st.secrets["firebase"])
+    firebase_config = st.secrets["firebase"]
 
     cred = credentials.Certificate(firebase_config)
     if not firebase_admin._apps:
