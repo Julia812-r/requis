@@ -214,7 +214,7 @@ elif aba == "Conferir Status de Solicitação":
     df = pd.DataFrame(df_data)
 
     if 'Número da RC' not in df.columns:
-    df['Número da RC'] = ""
+        df['Número da RC'] = ""
 
     if filtro_nome:
         df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
