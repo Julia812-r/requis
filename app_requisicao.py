@@ -287,7 +287,6 @@ elif aba == "Solicitação Almox":
                 st.session_state.almox_itens = []
                 st.success("Solicitação de almoxarifado enviada com sucesso!")
 
-
 # ---- ABA HISTÓRICO ----
 elif aba == "Histórico (Acesso Restrito)":
     st.title("Histórico de Solicitações - Acesso Restrito")
@@ -343,38 +342,29 @@ elif aba == "Histórico (Acesso Restrito)":
             else:
                 st.error("Número de solicitação não encontrado.")
 
-    st.subheader("Histórico de Solicitações ao Almoxarifado")
+        # Histórico de Solicitações ao Almoxarifado
+        st.subheader("Histórico de Solicitações ao Almoxarifado")
+        docs_almox = list(db.collection("almoxarifado").stream())
+        if not docs_almox:
+            st.info("Nenhuma solicitação de almoxarifado encontrada.")
+        else:
+            df_almox = pd.DataFrame([doc.to_dict() for doc in docs_almox])
+            st.dataframe(df_almox, use_container_width=True)
 
-    docs_almox = db.collection("almoxarifado").stream()
-    df_almox = pd.DataFrame([doc.to_dict() for doc in docs_almox])
+            st.subheader("Excluir Solicitação do Almoxarifado")
+            # Mostrar índice + algum dado para facilitar identificação
+            st.dataframe(df_almox[['Nome do Solicitante', 'MABEC', 'Descrição do Produto', 'Quantidade', 'Data Solicitação']], use_container_width=True)
 
-    if df_almox.empty:
-        st.info("Nenhuma solicitação de almoxarifado encontrada.")
-    else:
-        st.dataframe(df_almox, use_container_width=True)
-           
-    st.subheader("Excluir Solicitação do Almoxarifado")
-
-# Listar IDs para exclusão
-docs_almox = list(db.collection("almoxarifado").stream())
-if not docs_almox:
-    st.info("Nenhuma solicitação para excluir.")
-else:
-    # Mostrar índice + algum dado para facilitar identificação
-    df_almox = pd.DataFrame([doc.to_dict() for doc in docs_almox])
-    st.dataframe(df_almox[['Nome do Solicitante', 'MABEC', 'Descrição do Produto', 'Quantidade', 'Data Solicitação']], use_container_width=True)
-
-    index_almox = st.number_input(
-        "Digite o índice da solicitação de almoxarifado a excluir",
-        min_value=0,
-        max_value=len(docs_almox) - 1,
-        step=1
-    )
-    if st.button("Excluir Solicitação do Almoxarifado"):
-        doc_id = docs_almox[index_almox].id
-        db.collection("almoxarifado").document(doc_id).delete()
-        st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
+            index_almox = st.number_input(
+                "Digite o índice da solicitação de almoxarifado a excluir",
+                min_value=0,
+                max_value=len(docs_almox) - 1,
+                step=1
+            )
+            if st.button("Excluir Solicitação do Almoxarifado"):
+                doc_id = docs_almox[index_almox].id
+                db.collection("almoxarifado").document(doc_id).delete()
+                st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
 
     elif senha != "":
         st.error("Senha incorreta.")
-
