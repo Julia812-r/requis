@@ -320,11 +320,11 @@ elif aba == "Histórico (Acesso Restrito)":
         if st.button("Atualizar Status"):
             docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
             if docs:
-            for doc in docs:
-            db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
-            st.success("Status atualizado com sucesso!")
-        else:
-            st.error("Número da solicitação não encontrado.")
+                for doc in docs:
+                    db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
+               st.success("Status atualizado com sucesso!")
+           else:
+               st.error("Número da solicitação não encontrado.")
 
         st.subheader("Excluir Solicitação")
         excluir_numero = st.text_input("Digite o número da solicitação para excluir")
