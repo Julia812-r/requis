@@ -301,7 +301,7 @@ elif aba == "Histórico (Acesso Restrito)":
 
         filtro_numero = st.text_input("Filtrar por número da solicitação (opcional)").strip()
         if filtro_numero:
-            df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
+            df = df[df['numero solicitaçao'].str.upper() == filtro_numero.upper()]
 
         st.subheader("Histórico de Requisições")
         for i, row in df.iterrows():
