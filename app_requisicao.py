@@ -219,7 +219,7 @@ elif aba == "Conferir Status de Solicitação":
     if filtro_nome:
         df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
     if filtro_numero:
-        df = df[df['numero solicitaçao'].str.upper() == filtro_numero.upper()]
+        df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
 
     if df.empty:
         st.info("Nenhuma solicitação encontrada.")
@@ -301,7 +301,7 @@ elif aba == "Histórico (Acesso Restrito)":
 
         filtro_numero = st.text_input("Filtrar por número da solicitação (opcional)").strip()
         if filtro_numero:
-            df = df[df['numero solicitaçao'].str.upper() == filtro_numero.upper()]
+            df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
 
         st.subheader("Histórico de Requisições")
         for i, row in df.iterrows():
@@ -324,7 +324,7 @@ elif aba == "Histórico (Acesso Restrito)":
         novo_numero_rc = st.text_input("Número da RC (deixe em branco para não alterar)")
 
         if st.button("Atualizar Status e RC"):
-            docs = list(db.collection("requisicoes").where("numero solicitaçao", "==", numero_req_atualizar).stream())
+            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
             if docs:
                 for doc in docs:
                     update_data = {"Status": novo_status}
