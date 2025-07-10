@@ -315,27 +315,38 @@ elif aba == "Histórico (Acesso Restrito)":
             "Solicitação Recusada", "Cancelado"
         ])
 
-        numero_req_atualizar = st.text_input("Digite o número da solicitação para atualizar status").strip()
+st.subheader("Atualizar Status")
+numero_req_atualizar = st.text_input("Digite o número da solicitação para atualizar status").strip()
+novo_status = st.selectbox("Novo status", [
+    "Aprovação Comitê de Compras", "Criação da RC", "Aprovação Fabio Silva",
+    "Aprovação Federico Mateos", "Criação Pedido de Compra", "Aguardando Nota fiscal",
+    "Aguardando entrega", "Entregue", "Serviço realizado", "Pago",
+    "Solicitação Recusada", "Cancelado"
+])
 
-        if st.button("Atualizar Status"):
-           docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
-            if docs:
-                for doc in docs:
-                    db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
-                st.success("Status atualizado com sucesso!")
-            else:
-                st.error("Número da solicitação não encontrado.")
+if st.button("Atualizar Status"):
+    if not numero_req_atualizar:
+        st.warning("Digite um número de solicitação válido antes de atualizar.")
+    else:
+        docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
+        if docs:
+            for doc in docs:
+                db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
+            st.success("Status atualizado com sucesso!")
+        else:
+            st.error("Número da solicitação não encontrado.")
 
- st.subheader("Excluir Solicitação")
-        excluir_numero = st.text_input("Digite o número da solicitação para excluir")
-        if excluir_numero:
-            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", excluir_numero).stream())
-            if docs:
-                for doc in docs:
-                    db.collection("requisicoes").document(doc.id).delete()
-                st.success(f"Solicitação {excluir_numero} excluída com sucesso!")
-            else:
-                st.error("Número de solicitação não encontrado.")
+st.subheader("Excluir Solicitação")
+excluir_numero = st.text_input("Digite o número da solicitação para excluir").strip()
+if excluir_numero:
+    docs = list(db.collection("requisicoes").where("Número Solicitação", "==", excluir_numero).stream())
+    if docs:
+        for doc in docs:
+            db.collection("requisicoes").document(doc.id).delete()
+        st.success(f"Solicitação {excluir_numero} excluída com sucesso!")
+    else:
+        st.error("Número de solicitação não encontrado.")
+
 
         # Histórico de Solicitações ao Almoxarifado
         st.subheader("Histórico de Solicitações ao Almoxarifado")
