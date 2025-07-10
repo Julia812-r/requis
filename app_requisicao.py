@@ -323,8 +323,8 @@ elif aba == "Histórico (Acesso Restrito)":
                 for doc in docs:
                     db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
                 st.success("Status atualizado com sucesso!")
-           else:
-               st.error("Número da solicitação não encontrado.")
+            else:
+                st.error("Número da solicitação não encontrado.")
 
         st.subheader("Excluir Solicitação")
         excluir_numero = st.text_input("Digite o número da solicitação para excluir")
