@@ -215,7 +215,7 @@ elif aba == "Conferir Status de Solicitação":
     if filtro_nome:
         df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
     if filtro_numero:
-        df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
+        df = df[df['NúmeroSolicitação'].str.upper() == filtro_numero.upper()]
 
     if df.empty:
         st.info("Nenhuma solicitação encontrada.")
@@ -313,7 +313,7 @@ elif aba == "Histórico (Acesso Restrito)":
             "Solicitação Recusada", "Cancelado"
         ])
         if st.button("Atualizar Status"):
-            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
+            docs = list(db.collection("requisicoes").where("`Número Solicitação`", "==", numero_req_atualizar).stream())
             if docs:
                 for doc in docs:
                     db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
@@ -324,7 +324,7 @@ elif aba == "Histórico (Acesso Restrito)":
         st.subheader("Excluir Solicitação")
         excluir_numero = st.text_input("Digite o número da solicitação para excluir")
         if excluir_numero:
-            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", excluir_numero).stream())
+            docs = list(db.collection("requisicoes").where("`Número Solicitação`o", "==", excluir_numero).stream())
             if docs:
                 for doc in docs:
                     db.collection("requisicoes").document(doc.id).delete()
