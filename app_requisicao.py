@@ -116,16 +116,6 @@ aba = st.sidebar.selectbox("Selecione a aba", abas)
 if aba == "Nova Solicitação de Requisição":
     st.title("Nova Solicitação de Requisição")
 
-    if st.button("Testar gravação Firestore"):
-        try:
-            doc_ref = db.collection("teste_conexao").add({
-                "mensagem": "Teste de conexão Firestore",
-                "data": datetime.now().isoformat()
-            })
-            st.success("Gravação de teste realizada com sucesso! Confira no Firebase Console.")
-        except Exception as e:
-            st.error(f"Erro ao gravar no Firestore: {e}")
-
     nome = st.text_input("Nome do Solicitante")
     metier = st.text_input("Métier")
     tipo = st.radio("É serviço ou produto?", ["Serviço", "Produto"])
