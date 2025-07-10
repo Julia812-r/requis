@@ -215,7 +215,7 @@ elif aba == "Conferir Status de Solicitação":
     if filtro_nome:
         df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
     if filtro_numero:
-        df = df[df['NúmeroSolicitação'].str.upper() == filtro_numero.upper()]
+        df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
 
     if df.empty:
         st.info("Nenhuma solicitação encontrada.")
