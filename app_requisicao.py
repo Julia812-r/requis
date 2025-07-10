@@ -321,19 +321,22 @@ elif aba == "Histórico (Acesso Restrito)":
             "Solicitação Recusada", "Cancelado"
         ])
 
-        novo_numero_rc = st.text_input("Número da RC (deixe em branco para não alterar)")
+        numero_req_atualizar = st.text_input("Digite o número da solicitação para atualizar status").strip()
 
         if st.button("Atualizar Status e RC"):
-            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
-            if docs:
-                for doc in docs:
-                    update_data = {"Status": novo_status}
-                    if novo_numero_rc.strip():
-                        update_data["Número da RC"] = novo_numero_rc.strip()
-                    db.collection("requisicoes").document(doc.id).update(update_data)
-                st.success("Status e número da RC atualizados com sucesso!")
+            if not numero_req_atualizar:
+                st.warning("Digite um número de solicitação válido antes de atualizar.")
             else:
-                st.error("Número da solicitação não encontrado.")
+                docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
+                if docs:
+                    for doc in docs:
+                        update_data = {"Status": novo_status}
+                        if novo_numero_rc.strip():
+                            update_data["Número da RC"] = novo_numero_rc.strip()
+                        db.collection("requisicoes").document(doc.id).update(update_data)
+                    st.success("Status e número da RC atualizados com sucesso!")
+                else:
+                    st.error("Número da solicitação não encontrado.")
                 
         st.subheader("Excluir Solicitação")
         excluir_numero = st.text_input("Digite o número da solicitação para excluir")
