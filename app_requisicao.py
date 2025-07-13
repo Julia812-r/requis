@@ -296,6 +296,8 @@ elif aba == "Histórico (Acesso Restrito)":
             df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
 
         st.subheader("Histórico de Requisições")
+        import ast  # importa no topo do seu código (ou aqui, se preferir)
+
         for i, row in df.iterrows():
             with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
                 st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
@@ -307,13 +309,30 @@ elif aba == "Histórico (Acesso Restrito)":
                 st.write(f"**Demanda Nova ou Prevista:** {row['Demanda Nova ou Prevista']}")
                 st.write(f"**Linha de Projeto:** {row['Linha de Projeto']}")
                 st.write(f"**Tipo de Compra:** {row['Tipo de Compra']}")
-                st.write(f"**Itens:** {row['Itens']}")
-                st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
-                st.write(f"**Riscos:** {row['Riscos']}")
-                st.write(f"**Comentários:** {row['Comentários']}")
-                st.write(f"**Status:** {row['Status']}")
-                st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
-                st.markdown("---")
+        
+                # Formatar itens bonitinho
+                try:
+                    itens_lista = ast.literal_eval(row['Itens'])
+                    if isinstance(itens_lista, list):
+                        st.write("**Itens:**")
+                        for idx, item in enumerate(itens_lista, start=1):
+                            st.markdown(
+                                f"{idx}. **Descrição:** {item['Descrição']} | "
+                                f"**Qtd:** {item['Quantidade']} | "
+                                f"**Unitário:** R$ {item['Valor Unitário']:.2f} | "
+                                f"**Subtotal:** R$ {item['Subtotal']:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
+                           )
+                   else:
+                       st.write(f"**Itens:** {row['Itens']}")
+               except:
+                   st.write(f"**Itens:** {row['Itens']}")
+
+               st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
+               st.write(f"**Riscos:** {row['Riscos']}")
+               st.write(f"**Comentários:** {row['Comentários']}")
+               st.write(f"**Status:** {row['Status']}")
+               st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
+               st.markdown("---")
                 
         st.subheader("Atualizar Status")
         numero_req_atualizar = st.text_input("Digite o número da solicitação para atualizar status")
