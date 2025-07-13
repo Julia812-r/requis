@@ -119,17 +119,17 @@ if aba == "Nova Solicitação de Requisição":
     nome = st.text_input("Nome do Solicitante")
     metier = st.text_input("Métier")
     tipo = st.radio("É serviço ou produto?", ["Serviço", "Produto"])
-    projeto = st.text_input("Linha de Projeto")
     novo_previsto = st.selectbox("É produto novo ou backup?", ["", "Novo", "Backup"], index=0)
     demanda_tipo = st.radio("É uma demanda nova ou prevista?", ["Nova", "Prevista"])
+    projeto = st.text_input("Linha de Projeto")
     tipo_compra = st.radio("A compra é:", [
         "Ordinária (papelaria, limpeza, etc.)",
         "Emergenciais (situações imprevistas)",
         "Projetos (itens específicos para ações pontuais)",
         "Serviços (transporte, manutenção, calibração, etc.)"
     ])
-    comentarios = st.text_area("Comentários", height=150)
     riscos = st.text_area("Riscos envolvidos na não execução desta demanda", height=150)
+    comentarios = st.text_area("Comentários", height=150)
     orcamento = st.file_uploader("Anexar Orçamento (opcional)", type=["pdf", "jpg", "jpeg", "png", "doc", "docx"])
 
     st.subheader("Adicionar Itens da Solicitação")
@@ -298,12 +298,23 @@ elif aba == "Histórico (Acesso Restrito)":
         st.subheader("Histórico de Requisições")
         for i, row in df.iterrows():
             with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
-                for col in df.columns:
-                    if col != 'Caminho Orçamento':
-                        st.write(f"**{col}:** {row[col]}")
+                st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
+                st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
+                st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
+                st.write(f"**Métier:** {row['Métier']}")
+                st.write(f"**Tipo:** {row['Tipo']}")
+                st.write(f"**Produto Novo ou Previsto:** {row['Produto Novo ou Previsto']}")
+                st.write(f"**Demanda Nova ou Prevista:** {row['Demanda Nova ou Prevista']}")
+                st.write(f"**Linha de Projeto:** {row['Linha de Projeto']}")
+                st.write(f"**Tipo de Compra:** {row['Tipo de Compra']}")
+                st.write(f"**Itens:** {row['Itens']}")
+                st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
+                st.write(f"**Riscos:** {row['Riscos']}")
+                st.write(f"**Comentários:** {row['Comentários']}")
+                st.write(f"**Status:** {row['Status']}")
                 st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
                 st.markdown("---")
-
+                
         st.subheader("Atualizar Status")
         numero_req_atualizar = st.text_input("Digite o número da solicitação para atualizar status")
         novo_status = st.selectbox("Novo status", [
