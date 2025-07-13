@@ -323,7 +323,7 @@ elif aba == "Histórico (Acesso Restrito)":
                                 f"**Subtotal:** R$ {item['Subtotal']:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
                            )
                     else:
-                       st.write(f"**Itens:** {row['Itens']}")
+                        st.write(f"**Itens:** {row['Itens']}")
                except:
                    st.write(f"**Itens:** {row['Itens']}")
 
