@@ -324,8 +324,8 @@ elif aba == "Histórico (Acesso Restrito)":
                            )
                     else:
                         st.write(f"**Itens:** {row['Itens']}")
-               except:
-                   st.write(f"**Itens:** {row['Itens']}")
+                except:
+                    st.write(f"**Itens:** {row['Itens']}")
 
                st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
                st.write(f"**Riscos:** {row['Riscos']}")
