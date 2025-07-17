@@ -287,6 +287,10 @@ elif aba == "Histórico (Acesso Restrito)":
         df_data = [doc.to_dict() for doc in docs]
         df = pd.DataFrame(df_data)
 
+        # Ordenar por data (mais recente primeiro)
+        df['Data Solicitação'] = pd.to_datetime(df['Data Solicitação'], errors='coerce')
+        df = df.sort_values(by="Data Solicitação", ascending=False)
+
         filtro_nome = st.text_input("Filtrar por nome (opcional)").strip()
         if filtro_nome:
             df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
