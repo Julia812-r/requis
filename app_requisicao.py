@@ -328,8 +328,8 @@ elif aba == "Histórico (Acesso Restrito)":
                                     f"**Unitário:** R$ {item['Valor Unitário']:.2f} | "
                                    f"**Subtotal:** R$ {item['Subtotal']:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
                                 )
-                         else:
-                             st.write(f"**Itens:** {row['Itens']}")
+                        else:
+                            st.write(f"**Itens:** {row['Itens']}")
                      except:
                          st.write(f"**Itens:** {row['Itens']}")
                      st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
