@@ -295,14 +295,12 @@ elif aba == "Histórico (Acesso Restrito)":
         if filtro_numero:
             df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
 
-        st.subheader("Solicitações ainda não tratadas")
+        st.subheader("Solicitações aguardando Aprovação do Comitê de Compras")
+        
+        import ast
 
-        status_tratados = ["Entregue", "Serviço realizado", "Pago", "Solicitação Recusada", "Cancelado"]
-
-        df_nao_tratadas = df[~df['Status'].isin(status_tratados)]
-        df_tratadas = df[df['Status'].isin(status_tratados)]
-
-        import ast  # Se ainda não estiver no topo, mantenha
+        # Filtra apenas solicitações com status exato de "Aprovação Comitê de Compras"
+        df_aprovacao_comite = df[df['Status'] == "Aprovação Comitê de Compras"]
 
         def exibir_solicitacoes(df_exibir):
             for i, row in df_exibir.iterrows():
@@ -340,12 +338,21 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
                     st.markdown("---")
 
-        # Exibir solicitações ainda não tratadas
-        if not df_nao_tratadas.empty:
-            exibir_solicitacoes(df_nao_tratadas)
+        if not df_aprovacao_comite.empty:
+        exibir_solicitacoes(df_aprovacao_comite)
         else:
-            st.info("Nenhuma solicitação pendente.")
+            st.info("Nenhuma solicitação aguardando aprovação do comitê.")
+            
+        # Agora exibe as tratadas (ou seja, todas as que não estão com esse status)
+        st.subheader("Demais Solicitações (Já tratadas ou em outras etapas)")
 
+        df_outros = df[df['Status'] != "Aprovação Comitê de Compras"]
+
+        if not df_outros.empty:
+            exibir_solicitacoes(df_outros)
+        else:
+            st.info("Nenhuma solicitação nas demais etapas.")
+            
         st.subheader("Solicitações tratadas")
 
         if not df_tratadas.empty:
