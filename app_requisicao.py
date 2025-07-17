@@ -304,8 +304,8 @@ elif aba == "Histórico (Acesso Restrito)":
         df['Status_Limpo'] = df['Status'].astype(str).str.strip().str.lower().str.replace('\n', '', regex=False)
 
         # Filtros com base na versão limpa
-        df_nao_tratadas = df[df['Status_Limpo'] == "aprovação comitê de compras"]
-        df_tratadas = df[df['Status_Limpo'] != "aprovação comitê de compras"]
+        df_nao_tratadas = df[df['Status_Limpo'] == "Aprovação Comitê de Compras"]
+        df_tratadas = df[df['Status_Limpo'] != "Aprovação Comitê de Compras"]
 
         def exibir_solicitacoes(df_exibir):
             for i, row in df_exibir.iterrows():
