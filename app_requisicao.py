@@ -296,22 +296,30 @@ elif aba == "Histórico (Acesso Restrito)":
             df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
 
         st.subheader("Solicitações aguardando Aprovação do Comitê de Compras")
-        
-        import ast
 
-        # Limpa e padroniza a coluna Status para facilitar filtro
+        import unicodedata
+
+        def remove_acentos(texto):
+            return ''.join(c for c in unicodedata.normalize('NFKD', texto) if not unicodedata.combining(c))
+ 
+        # Limpar, tirar espaços, quebras de linha, passar para minúsculo e remover acentos
         df['Status_Limpo'] = df['Status'].astype(str).str.strip().str.replace('\n', '').str.lower()
+        df['Status_Limpo'] = df['Status_Limpo'].apply(remove_acentos)
 
-        # Define a string padrão para comparar (tudo minúsculo)
-        status_comite = "aprovação comitê de compras"
+        # Mostrar os status únicos encontrados (útil pra debug)
+        st.write("Status únicos encontrados após limpeza e normalização:")
+        st.write(df['Status_Limpo'].unique())
 
-        # Filtra apenas as solicitações com status exatamente igual a "aprovação comitê de compras"
+        # Texto exato para filtro depois de normalização
+        status_comite = "aprovacao comite de compras"
+
+        # Filtrar só as solicitações que estão aguardando aprovação do comitê
         df_nao_tratadas = df[df['Status_Limpo'] == status_comite]
 
-        # Filtra as solicitações com status diferente (ou seja, tratadas)
+        # Filtrar os demais status como "tratadas"
         df_tratadas = df[df['Status_Limpo'] != status_comite]
 
-
+        
         def exibir_solicitacoes(df_exibir):
             for i, row in df_exibir.iterrows():
                 with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
