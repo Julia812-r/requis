@@ -295,44 +295,64 @@ elif aba == "Histórico (Acesso Restrito)":
         if filtro_numero:
             df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
 
-        st.subheader("Histórico de Requisições")
-        import ast  # importa no topo do seu código (ou aqui, se preferir)
+        st.subheader("Solicitações ainda não tratadas")
 
-        for i, row in df.iterrows():
-            with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
-                st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
-                st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
-                st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
-                st.write(f"**Métier:** {row['Métier']}")
-                st.write(f"**Tipo:** {row['Tipo']}")
-                st.write(f"**Produto Novo ou Previsto:** {row['Produto Novo ou Previsto']}")
-                st.write(f"**Demanda Nova ou Prevista:** {row['Demanda Nova ou Prevista']}")
-                st.write(f"**Linha de Projeto:** {row['Linha de Projeto']}")
-                st.write(f"**Tipo de Compra:** {row['Tipo de Compra']}")
-        
-                # Formatar itens bonitinho
-                try:
-                    itens_lista = ast.literal_eval(row['Itens'])
-                    if isinstance(itens_lista, list):
-                        st.write("**Itens:**")
-                        for idx, item in enumerate(itens_lista, start=1):
-                            st.markdown(
-                                f"{idx}. **Descrição:** {item['Descrição']} | "
-                                f"**Qtd:** {item['Quantidade']} | "
-                                f"**Unitário:** R$ {item['Valor Unitário']:.2f} | "
-                                f"**Subtotal:** R$ {item['Subtotal']:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
-                           )
-                    else:
-                        st.write(f"**Itens:** {row['Itens']}")
-                except:
-                    st.write(f"**Itens:** {row['Itens']}")
+        status_tratados = ["Entregue", "Serviço realizado", "Pago", "Solicitação Recusada", "Cancelado"]
 
-                st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
-                st.write(f"**Riscos:** {row['Riscos']}")
-                st.write(f"**Comentários:** {row['Comentários']}")
-                st.write(f"**Status:** {row['Status']}")
-                st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
-                st.markdown("---")
+        df_nao_tratadas = df[~df['Status'].isin(status_tratados)]
+        df_tratadas = df[df['Status'].isin(status_tratados)]
+
+        import ast  # Se ainda não estiver no topo, mantenha
+
+        def exibir_solicitacoes(df_exibir):
+            for i, row in df_exibir.iterrows():
+                with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
+                    st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
+                    st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
+                    st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
+                    st.write(f"**Métier:** {row['Métier']}")
+                    st.write(f"**Tipo:** {row['Tipo']}")
+                    st.write(f"**Produto Novo ou Previsto:** {row['Produto Novo ou Previsto']}")
+                    st.write(f"**Demanda Nova ou Prevista:** {row['Demanda Nova ou Prevista']}")
+                    st.write(f"**Linha de Projeto:** {row['Linha de Projeto']}")
+                    st.write(f"**Tipo de Compra:** {row['Tipo de Compra']}")
+
+                    try:
+                        itens_lista = ast.literal_eval(row['Itens'])
+                        if isinstance(itens_lista, list):
+                            st.write("**Itens:**")
+                            for idx, item in enumerate(itens_lista, start=1):
+                                st.markdown(
+                                    f"{idx}. **Descrição:** {item['Descrição']} | "
+                                    f"**Qtd:** {item['Quantidade']} | "
+                                    f"**Unitário:** R$ {item['Valor Unitário']:.2f} | "
+                                    f"**Subtotal:** R$ {item['Subtotal']:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
+                                )
+                        else:
+                            st.write(f"**Itens:** {row['Itens']}")
+                     except:
+                         st.write(f"**Itens:** {row['Itens']}")
+
+                     st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
+                     st.write(f"**Riscos:** {row['Riscos']}")
+                     st.write(f"**Comentários:** {row['Comentários']}")
+                     st.write(f"**Status:** {row['Status']}")
+                     st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
+                     st.markdown("---")
+
+        # Exibir solicitações ainda não tratadas
+        if not df_nao_tratadas.empty:
+            exibir_solicitacoes(df_nao_tratadas)
+        else:
+            st.info("Nenhuma solicitação pendente.")
+
+        st.subheader("Solicitações tratadas")
+
+        if not df_tratadas.empty:
+            exibir_solicitacoes(df_tratadas)
+        else:
+            st.info("Nenhuma solicitação tratada.")
+
                 
         st.subheader("Atualizar Status")
         numero_req_atualizar = st.text_input("Digite o número da solicitação para atualizar status")
