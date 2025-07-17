@@ -339,7 +339,7 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.markdown("---")
 
         if not df_aprovacao_comite.empty:
-        exibir_solicitacoes(df_aprovacao_comite)
+            exibir_solicitacoes(df_aprovacao_comite)
         else:
             st.info("Nenhuma solicitação aguardando aprovação do comitê.")
             
