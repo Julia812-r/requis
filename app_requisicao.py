@@ -353,7 +353,7 @@ elif aba == "Histórico (Acesso Restrito)":
         st.subheader("Solicitações tratadas")
 
         if not df_tratadas.empty:
-            exibir_solicitacoes(df_outros)
+            exibir_solicitacoes(df_tratadas)
         else:
             st.info("Nenhuma solicitação tratada.")
 
