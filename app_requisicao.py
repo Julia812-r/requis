@@ -300,7 +300,8 @@ elif aba == "Histórico (Acesso Restrito)":
         import ast
 
         # Filtra apenas solicitações com status exato de "Aprovação Comitê de Compras"
-        df_aprovacao_comite = df[df['Status'] == "Aprovação Comitê de Compras"]
+        df_nao_tratadas = df[df['Status'] == "Aprovação Comitê de Compras"]
+        df_tratadas = df[df['Status'] != "Aprovação Comitê de Compras"]
 
         def exibir_solicitacoes(df_exibir):
             for i, row in df_exibir.iterrows():
@@ -337,19 +338,15 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.write(f"**Status:** {row['Status']}")
                     st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
                     st.markdown("---")
-
-        if not df_aprovacao_comite.empty:
-            exibir_solicitacoes(df_aprovacao_comite)
+                    
+        if not df_nao_tratadas.empty:
+            exibir_solicitacoes(df_nao_tratadas)
         else:
             st.info("Nenhuma solicitação aguardando aprovação do comitê.")
             
-        # Agora exibe as tratadas (ou seja, todas as que não estão com esse status)
-        st.subheader("Demais Solicitações (Já tratadas ou em outras etapas)")
-
-        df_outros = df[df['Status'] != "Aprovação Comitê de Compras"]
-
-        if not df_outros.empty:
-            exibir_solicitacoes(df_outros)
+        # Mostrar solicitações já tratadas
+        if not df_tratadas.empty:
+            exibir_solicitacoes(df_tratadas)
         else:
             st.info("Nenhuma solicitação nas demais etapas.")
             
