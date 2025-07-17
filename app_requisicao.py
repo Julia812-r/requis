@@ -299,13 +299,18 @@ elif aba == "Histórico (Acesso Restrito)":
         
         import ast
 
-        # Filtra apenas solicitações com status exato de "Aprovação Comitê de Compras"
-        # Padronizar status: remover espaços, quebras de linha e colocar tudo em minúsculo
-        df['Status_Limpo'] = df['Status'].astype(str).str.strip().str.lower().str.replace('\n', '', regex=False)
+        # Limpa e padroniza a coluna Status para facilitar filtro
+        df['Status_Limpo'] = df['Status'].astype(str).str.strip().str.replace('\n', '').str.lower()
 
-        # Filtros com base na versão limpa
-        df_nao_tratadas = df[df['Status_Limpo'] == "aprovação comitê de compras"]
-        df_tratadas = df[df['Status_Limpo'] != "aprovação comitê de compras"]
+        # Define a string padrão para comparar (tudo minúsculo)
+        status_comite = "aprovação comitê de compras"
+
+        # Filtra apenas as solicitações com status exatamente igual a "aprovação comitê de compras"
+        df_nao_tratadas = df[df['Status_Limpo'] == status_comite]
+
+        # Filtra as solicitações com status diferente (ou seja, tratadas)
+        df_tratadas = df[df['Status_Limpo'] != status_comite]
+
 
         def exibir_solicitacoes(df_exibir):
             for i, row in df_exibir.iterrows():
