@@ -386,14 +386,14 @@ elif aba == "Histórico (Acesso Restrito)":
                                 )
                         else:
                             st.write(f"**Itens:** {row['Itens']}")
-                       except:
-                           st.write(f"**Itens:** {row['Itens']}")
-                       st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
-                       st.write(f"**Riscos:** {row['Riscos']}")
-                       st.write(f"**Comentários:** {row['Comentários']}")
-                       st.write(f"**Status:** {row['Status']}")
-                       st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
-                       st.markdown("---")
+                        except:
+                            st.write(f"**Itens:** {row['Itens']}")
+                        st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
+                        st.write(f"**Riscos:** {row['Riscos']}")
+                        st.write(f"**Comentários:** {row['Comentários']}")
+                        st.write(f"**Status:** {row['Status']}")
+                        st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
+                        st.markdown("---")
                 
         st.subheader("Atualizar Status")
         numero_req_atualizar = st.text_input("Digite o número da solicitação para atualizar status")
