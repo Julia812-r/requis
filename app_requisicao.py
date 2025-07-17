@@ -300,8 +300,12 @@ elif aba == "Histórico (Acesso Restrito)":
         import ast
 
         # Filtra apenas solicitações com status exato de "Aprovação Comitê de Compras"
-        df_nao_tratadas = df[df['Status'].str.strip() == "Aprovação Comitê de Compras"]
-        df_tratadas = df[df['Status'].str.strip() != "Aprovação Comitê de Compras"]
+        # Padronizar status: remover espaços, quebras de linha e colocar tudo em minúsculo
+        df['Status_Limpo'] = df['Status'].astype(str).str.strip().str.lower().str.replace('\n', '', regex=False)
+
+        # Filtros com base na versão limpa
+        df_nao_tratadas = df[df['Status_Limpo'] == "aprovação comitê de compras"]
+        df_tratadas = df[df['Status_Limpo'] != "aprovação comitê de compras"]
 
         def exibir_solicitacoes(df_exibir):
             for i, row in df_exibir.iterrows():
