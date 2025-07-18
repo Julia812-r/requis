@@ -389,69 +389,49 @@ elif aba == "Histórico (Acesso Restrito)":
             "Aguardando entrega", "Entregue", "Serviço realizado", "Pago",
             "Solicitação Recusada", "Cancelado"
         ])
+        if st.button("Atualizar Status"):
+            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
+            if docs:
+                for doc in docs:
+                    db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
+                st.success("Status atualizado com sucesso!")
+            else:
+                st.error("Número da solicitação não encontrado.")
 
-        # -------- NOVA ÁREA COM EDIÇÃO E EXCLUSÃO VISUAL --------
-import ast
-
-# ------------------------ Solicitações Ainda Não Tratadas ------------------------
-st.subheader("Solicitações Ainda Não Tratadas")
-
-nao_tratadas = df[df['Status'] == "Aprovação Comitê de Compras"]
-if nao_tratadas.empty:
-    st.info("Não há solicitações pendentes.")
-else:
-    st.markdown("### Editar / Atualizar Solicitações Pendentes")
-    df_nao_tratadas_edit = st.data_editor(nao_tratadas, num_rows="dynamic", key="editor_nao_tratadas")
-
-    if not df_nao_tratadas_edit.equals(nao_tratadas):
-        st.warning("Alterações detectadas nas solicitações pendentes.")
-        if st.button("Salvar Alterações Pendentes"):
-            for doc in db.collection("requisicoes").stream():
-                if doc.to_dict().get("Status") == "Aprovação Comitê de Compras":
+        st.subheader("Excluir Solicitação")
+        excluir_numero = st.text_input("Digite o número da solicitação para excluir")
+        if excluir_numero:
+            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", excluir_numero).stream())
+            if docs:
+                for doc in docs:
                     db.collection("requisicoes").document(doc.id).delete()
-            for _, row in df_nao_tratadas_edit.iterrows():
-                db.collection("requisicoes").add(row.to_dict())
-            st.success("Solicitações pendentes atualizadas com sucesso.")
+                st.success(f"Solicitação {excluir_numero} excluída com sucesso!")
+            else:
+                st.error("Número de solicitação não encontrado.")
 
-# ------------------------ Solicitações Tratadas ------------------------
-st.subheader("Solicitações Tratadas")
+        # Histórico de Solicitações ao Almoxarifado
+        st.subheader("Histórico de Solicitações ao Almoxarifado")
+        docs_almox = list(db.collection("almoxarifado").stream())
+        if not docs_almox:
+            st.info("Nenhuma solicitação de almoxarifado encontrada.")
+        else:
+            df_almox = pd.DataFrame([doc.to_dict() for doc in docs_almox])
+            st.dataframe(df_almox, use_container_width=True)
 
-tratadas = df[df['Status'] != "Aprovação Comitê de Compras"]
-if tratadas.empty:
-    st.info("Não há solicitações tratadas.")
-else:
-    st.markdown("### Editar / Atualizar Solicitações Tratadas")
-    df_tratadas_edit = st.data_editor(tratadas, num_rows="dynamic", key="editor_tratadas")
+            st.subheader("Excluir Solicitação do Almoxarifado")
+            # Mostrar índice + algum dado para facilitar identificação
+            st.dataframe(df_almox[['Nome do Solicitante', 'MABEC', 'Descrição do Produto', 'Quantidade', 'Data Solicitação']], use_container_width=True)
 
-    if not df_tratadas_edit.equals(tratadas):
-        st.warning("Alterações detectadas nas solicitações tratadas.")
-        if st.button("Salvar Alterações Tratadas"):
-            for doc in db.collection("requisicoes").stream():
-                if doc.to_dict().get("Status") != "Aprovação Comitê de Compras":
-                    db.collection("requisicoes").document(doc.id).delete()
-            for _, row in df_tratadas_edit.iterrows():
-                db.collection("requisicoes").add(row.to_dict())
-            st.success("Solicitações tratadas atualizadas com sucesso.")
+            index_almox = st.number_input(
+                "Digite o índice da solicitação de almoxarifado a excluir",
+                min_value=0,
+                max_value=len(docs_almox) - 1,
+                step=1
+            )
+            if st.button("Excluir Solicitação do Almoxarifado"):
+                doc_id = docs_almox[index_almox].id
+                db.collection("almoxarifado").document(doc_id).delete()
+                st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
 
-# ------------------------ Histórico Almoxarifado ------------------------
-st.subheader("Histórico de Solicitações ao Almoxarifado")
-
-docs_almox = list(db.collection("almoxarifado").stream())
-if not docs_almox:
-    st.info("Nenhuma solicitação de almoxarifado encontrada.")
-else:
-    df_almox = pd.DataFrame([doc.to_dict() for doc in docs_almox])
-    st.markdown("### Editar / Atualizar Solicitações do Almoxarifado")
-    df_almox_edit = st.data_editor(df_almox, num_rows="dynamic", key="editor_almox")
-
-    if not df_almox_edit.equals(df_almox):
-        st.warning("Alterações detectadas nas solicitações do almoxarifado.")
-        if st.button("Salvar Alterações Almoxarifado"):
-            for doc in docs_almox:
-                db.collection("almoxarifado").document(doc.id).delete()
-            for _, row in df_almox_edit.iterrows():
-                db.collection("almoxarifado").add(row.to_dict())
-            st.success("Solicitações de almoxarifado atualizadas com sucesso.")
-
-elif senha != "":
-    st.error("Senha incorreta.")
+    elif senha != "":
+        st.error("Senha incorreta.")      
