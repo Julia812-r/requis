@@ -288,7 +288,6 @@ elif aba == "Histórico (Acesso Restrito)":
         df = pd.DataFrame(df_data)
         doc_ids = [doc.id for doc in docs]
 
-        # Converter datas e ordenar
         df['Data Solicitação'] = pd.to_datetime(df['Data Solicitação'], errors='coerce')
         df = df.sort_values(by="Data Solicitação", ascending=False).reset_index(drop=True)
 
@@ -356,7 +355,6 @@ elif aba == "Histórico (Acesso Restrito)":
                                 doc_id = docs[indices[0]].id
                                 db.collection("requisicoes").document(doc_id).update({"Status": novo_status})
                                 st.success(f"Status da solicitação {numero_solicitacao} atualizado para {novo_status}")
-                                st.experimental_rerun()
                             else:
                                 st.error(f"Documento para solicitação {numero_solicitacao} não encontrado no banco de dados.")
 
@@ -368,7 +366,6 @@ elif aba == "Histórico (Acesso Restrito)":
                                 doc_id = docs[indices[0]].id
                                 db.collection("requisicoes").document(doc_id).delete()
                                 st.success(f"Solicitação {numero_solicitacao} excluída com sucesso!")
-                                st.experimental_rerun()
                             else:
                                 st.error(f"Documento para solicitação {numero_solicitacao} não encontrado no banco de dados.")
 
@@ -431,7 +428,6 @@ elif aba == "Histórico (Acesso Restrito)":
                                 doc_id = docs[indices[0]].id
                                 db.collection("requisicoes").document(doc_id).update({"Status": novo_status})
                                 st.success(f"Status da solicitação {numero_solicitacao} atualizado para {novo_status}")
-                                st.experimental_rerun()
                             else:
                                 st.error(f"Documento para solicitação {numero_solicitacao} não encontrado no banco de dados.")
 
@@ -443,7 +439,6 @@ elif aba == "Histórico (Acesso Restrito)":
                                 doc_id = docs[indices[0]].id
                                 db.collection("requisicoes").document(doc_id).delete()
                                 st.success(f"Solicitação {numero_solicitacao} excluída com sucesso!")
-                                st.experimental_rerun()
                             else:
                                 st.error(f"Documento para solicitação {numero_solicitacao} não encontrado no banco de dados.")
 
@@ -474,7 +469,6 @@ elif aba == "Histórico (Acesso Restrito)":
                     doc_id = docs_almox[index_almox].id
                     db.collection("almoxarifado").document(doc_id).delete()
                     st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
-                    st.experimental_rerun()
                 else:
                     st.error("Índice inválido ou nenhuma solicitação disponível para exclusão.")
 
