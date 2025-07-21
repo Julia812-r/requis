@@ -401,7 +401,7 @@ elif aba == "Histórico (Acesso Restrito)":
         st.subheader("Excluir Solicitação")
         excluir_numero = st.text_input("Digite o número da solicitação para excluir")
         if excluir_numero:
-            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", excluir_numero).stream())
+            docs = list(db.collection("requisicoes").where("`Número Solicitação`", "==", excluir_numero).stream())
             if docs:
                 for doc in docs:
                     db.collection("requisicoes").document(doc.id).delete()
