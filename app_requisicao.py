@@ -286,15 +286,14 @@ elif aba == "Histórico (Acesso Restrito)":
         docs = list(db.collection("requisicoes").stream())
         df_data = [doc.to_dict() for doc in docs]
         df = pd.DataFrame(df_data)
-
         doc_ids = [doc.id for doc in docs]
 
+        # Converter datas e ordenar
         df['Data Solicitação'] = pd.to_datetime(df['Data Solicitação'], errors='coerce')
         df = df.sort_values(by="Data Solicitação", ascending=False).reset_index(drop=True)
 
         import ast
 
-        # Separar as solicitações
         nao_tratadas = df[df['Status'] == "Aprovação Comitê de Compras"].reset_index(drop=True)
         tratadas = df[df['Status'] != "Aprovação Comitê de Compras"].reset_index(drop=True)
 
@@ -308,7 +307,12 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
                     st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
                     st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
-                    # Mostrar mais campos se desejar
+                    st.write(f"**Métier:** {row.get('Métier', '')}")
+                    st.write(f"**Tipo:** {row.get('Tipo', '')}")
+                    st.write(f"**Produto Novo ou Backup:** {row.get('Produto Novo ou Backup', '')}")
+                    st.write(f"**Demanda Nova ou Prevista:** {row.get('Demanda Nova ou Prevista', '')}")
+                    st.write(f"**Linha de Projeto:** {row.get('Linha de Projeto', '')}")
+                    st.write(f"**Tipo de Compra:** {row.get('Tipo de compra', '')}")
 
                     try:
                         itens_lista = ast.literal_eval(row['Itens'])
@@ -324,9 +328,14 @@ elif aba == "Histórico (Acesso Restrito)":
                         else:
                             st.write(f"**Itens:** {row['Itens']}")
                     except:
-                        st.write(f"**Itens:** {row['Itens']}")
+                        st.write(f"**Itens:** {row.get('Itens', '')}")
 
+                    st.write(f"**Valor Total:** R$ {row.get('Valor Total', 0):,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
+                    st.write(f"**Riscos:** {row.get('Riscos', '')}")
+                    st.write(f"**Comentários:** {row.get('Comentários', '')}")
                     st.write(f"**Status:** {row['Status']}")
+
+                    st.markdown(gerar_link_download(row.get('Caminho orçamento', '')), unsafe_allow_html=True)
 
                     novo_status = st.selectbox(
                         "Atualizar status:",
@@ -341,17 +350,25 @@ elif aba == "Histórico (Acesso Restrito)":
                     col1, col2 = st.columns([0.15, 0.15])
                     with col1:
                         if st.button("💾 Atualizar", key=f"btn_update_nao_tratadas_{i}"):
-                            doc_id = docs[df.index[df['Número Solicitação'] == row['Número Solicitação']][0]].id
-                            db.collection("requisicoes").document(doc_id).update({"Status": novo_status})
-                            st.success(f"Status da solicitação {row['Número Solicitação']} atualizado para {novo_status}")
-                            st.experimental_rerun()
+                            indices = df.index[(df['Número Solicitação'].str.strip().str.upper() == row['Número Solicitação'].strip().upper())]
+                            if len(indices) > 0:
+                                doc_id = docs[indices[0]].id
+                                db.collection("requisicoes").document(doc_id).update({"Status": novo_status})
+                                st.success(f"Status da solicitação {row['Número Solicitação']} atualizado para {novo_status}")
+                                st.experimental_rerun()
+                            else:
+                                st.error(f"Documento para solicitação {row['Número Solicitação']} não encontrado no banco de dados.")
 
                     with col2:
                         if st.button("🗑️ Excluir", key=f"btn_delete_nao_tratadas_{i}"):
-                            doc_id = docs[df.index[df['Número Solicitação'] == row['Número Solicitação']][0]].id
-                            db.collection("requisicoes").document(doc_id).delete()
-                            st.success(f"Solicitação {row['Número Solicitação']} excluída com sucesso!")
-                            st.experimental_rerun()
+                            indices = df.index[(df['Número Solicitação'].str.strip().str.upper() == row['Número Solicitação'].strip().upper())]
+                            if len(indices) > 0:
+                                doc_id = docs[indices[0]].id
+                                db.collection("requisicoes").document(doc_id).delete()
+                                st.success(f"Solicitação {row['Número Solicitação']} excluída com sucesso!")
+                                st.experimental_rerun()
+                            else:
+                                st.error(f"Documento para solicitação {row['Número Solicitação']} não encontrado no banco de dados.")
 
         st.subheader("Solicitações Tratadas")
         if tratadas.empty:
@@ -363,7 +380,12 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
                     st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
                     st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
-                    # Mostrar mais campos se desejar
+                    st.write(f"**Métier:** {row.get('Métier', '')}")
+                    st.write(f"**Tipo:** {row.get('Tipo', '')}")
+                    st.write(f"**Produto Novo ou Backup:** {row.get('Produto Novo ou Backup', '')}")
+                    st.write(f"**Demanda Nova ou Prevista:** {row.get('Demanda Nova ou Prevista', '')}")
+                    st.write(f"**Linha de Projeto:** {row.get('Linha de Projeto', '')}")
+                    st.write(f"**Tipo de Compra:** {row.get('Tipo de compra', '')}")
 
                     try:
                         itens_lista = ast.literal_eval(row['Itens'])
@@ -379,9 +401,14 @@ elif aba == "Histórico (Acesso Restrito)":
                         else:
                             st.write(f"**Itens:** {row['Itens']}")
                     except:
-                        st.write(f"**Itens:** {row['Itens']}")
+                        st.write(f"**Itens:** {row.get('Itens', '')}")
 
+                    st.write(f"**Valor Total:** R$ {row.get('Valor Total', 0):,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
+                    st.write(f"**Riscos:** {row.get('Riscos', '')}")
+                    st.write(f"**Comentários:** {row.get('Comentários', '')}")
                     st.write(f"**Status:** {row['Status']}")
+
+                    st.markdown(gerar_link_download(row.get('Caminho orçamento', '')), unsafe_allow_html=True)
 
                     novo_status = st.selectbox(
                         "Atualizar status:",
@@ -396,20 +423,27 @@ elif aba == "Histórico (Acesso Restrito)":
                     col1, col2 = st.columns([0.15, 0.15])
                     with col1:
                         if st.button("💾 Atualizar", key=f"btn_update_tratadas_{i}"):
-                            doc_id = docs[df.index[df['Número Solicitação'] == row['Número Solicitação']][0]].id
-                            db.collection("requisicoes").document(doc_id).update({"Status": novo_status})
-                            st.success(f"Status da solicitação {row['Número Solicitação']} atualizado para {novo_status}")
-                            st.experimental_rerun()
+                            indices = df.index[(df['Número Solicitação'].str.strip().str.upper() == row['Número Solicitação'].strip().upper())]
+                            if len(indices) > 0:
+                                doc_id = docs[indices[0]].id
+                                db.collection("requisicoes").document(doc_id).update({"Status": novo_status})
+                                st.success(f"Status da solicitação {row['Número Solicitação']} atualizado para {novo_status}")
+                                st.experimental_rerun()
+                            else:
+                                st.error(f"Documento para solicitação {row['Número Solicitação']} não encontrado no banco de dados.")
 
                     with col2:
                         if st.button("🗑️ Excluir", key=f"btn_delete_tratadas_{i}"):
-                            doc_id = docs[df.index[df['Número Solicitação'] == row['Número Solicitação']][0]].id
-                            db.collection("requisicoes").document(doc_id).delete()
-                            st.success(f"Solicitação {row['Número Solicitação']} excluída com sucesso!")
-                            st.experimental_rerun()
+                            indices = df.index[(df['Número Solicitação'].str.strip().str.upper() == row['Número Solicitação'].strip().upper())]
+                            if len(indices) > 0:
+                                doc_id = docs[indices[0]].id
+                                db.collection("requisicoes").document(doc_id).delete()
+                                st.success(f"Solicitação {row['Número Solicitação']} excluída com sucesso!")
+                                st.experimental_rerun()
+                            else:
+                                st.error(f"Documento para solicitação {row['Número Solicitação']} não encontrado no banco de dados.")
 
-
-        # Histórico de Solicitações ao Almoxarifado
+        # Histórico Almoxarifado
         st.subheader("Histórico de Solicitações ao Almoxarifado")
         docs_almox = list(db.collection("almoxarifado").stream())
         if not docs_almox:
@@ -419,19 +453,26 @@ elif aba == "Histórico (Acesso Restrito)":
             st.dataframe(df_almox, use_container_width=True)
 
             st.subheader("Excluir Solicitação do Almoxarifado")
-            # Mostrar índice + algum dado para facilitar identificação
-            st.dataframe(df_almox[['Nome do Solicitante', 'MABEC', 'Descrição do Produto', 'Quantidade', 'Data Solicitação']], use_container_width=True)
+            st.dataframe(
+                df_almox[['Nome do Solicitante', 'MABEC', 'Descrição do Produto', 'Quantidade', 'Data Solicitação']],
+                use_container_width=True
+            )
 
             index_almox = st.number_input(
                 "Digite o índice da solicitação de almoxarifado a excluir",
                 min_value=0,
-                max_value=len(docs_almox) - 1,
+                max_value=len(docs_almox) - 1 if docs_almox else 0,
                 step=1
             )
-            if st.button("Excluir Solicitação do Almoxarifado"):
-                doc_id = docs_almox[index_almox].id
-                db.collection("almoxarifado").document(doc_id).delete()
-                st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
+
+            if st.button("🗑️ Excluir Solicitação do Almoxarifado"):
+                if docs_almox and 0 <= index_almox < len(docs_almox):
+                    doc_id = docs_almox[index_almox].id
+                    db.collection("almoxarifado").document(doc_id).delete()
+                    st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
+                    st.experimental_rerun()
+                else:
+                    st.error("Índice inválido ou nenhuma solicitação disponível para exclusão.")
 
     elif senha != "":
-        st.error("Senha incorreta.")      
+        st.error("Senha incorreta.")
