@@ -390,7 +390,7 @@ elif aba == "Histórico (Acesso Restrito)":
             "Solicitação Recusada", "Cancelado"
         ])
         if st.button("Atualizar Status"):
-            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
+            docs = list(db.collection("requisicoes").where("`Número Solicitação`", "==", numero_req_atualizar).stream())
             if docs:
                 for doc in docs:
                     db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
