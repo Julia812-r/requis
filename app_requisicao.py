@@ -311,7 +311,7 @@ elif aba == "Histórico (Acesso Restrito)":
             import ast
             for i, row in nao_tratadas.iterrows():
                 with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
-                    st.write(f"**Número Solicitação:** {row['Número_Solicitação']}")
+                    st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
                     st.write(f"**Data Solicitação:** {row['data_solicitacao']}")
                     st.write(f"**Nome do Solicitante:** {row['nome_solicitante']}")
                     st.write(f"**Métier:** {row['Métier']}")
