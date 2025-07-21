@@ -312,14 +312,14 @@ elif aba == "Histórico (Acesso Restrito)":
             for i, row in nao_tratadas.iterrows():
                 with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
                     st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
-                    st.write(f"**Data Solicitação:** {row['data_solicitacao']}")
-                    st.write(f"**Nome do Solicitante:** {row['nome_solicitante']}")
+                    st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
+                    st.write(f"**Nome do Solicitante:** {row['Nome do solicitante']}")
                     st.write(f"**Métier:** {row['Métier']}")
                     st.write(f"**Tipo:** {row['Tipo']}")
-                    st.write(f"**Produto Novo ou Backup:** {row['produto_novo_ou_backup']}")
-                    st.write(f"**Demanda Nova ou Prevista:** {row['demanda_tipo']}")
-                    st.write(f"**Linha de Projeto:** {row['linha_projeto']}")
-                    st.write(f"**Tipo de Compra:** {row['tipo_compra']}")
+                    st.write(f"**Produto Novo ou Backup:** {row['Produto Novo ou Backup']}")
+                    st.write(f"**Demanda Nova ou Prevista:** {row['Demanda Nova ou Prevista']}")
+                    st.write(f"**Linha de Projeto:** {row['Linha de Projeto']}")
+                    st.write(f"**Tipo de Compra:** {row['Tipo de Compra']}")
                     # Formatar itens bonitinho
                     try:
                         itens_lista = ast.literal_eval(row['Itens'])
@@ -336,11 +336,11 @@ elif aba == "Histórico (Acesso Restrito)":
                             st.write(f"**Itens:** {row['Itens']}")
                     except:
                         st.write(f"**Itens:** {row['itens']}")
-                    st.write(f"**Valor Total:** R$ {row['valor_total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
-                    st.write(f"**Riscos:** {row['riscos']}")
-                    st.write(f"**Comentários:** {row['comentarios']}")
-                    st.write(f"**Status:** {row['status']}")
-                    st.markdown(gerar_link_download(row['caminho_orcamento']), unsafe_allow_html=True)
+                    st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
+                    st.write(f"**Riscos:** {row['Riscos']}")
+                    st.write(f"**Comentários:** {row['Comentários']}")
+                    st.write(f"**Status:** {row['Status']}")
+                    st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
                     st.markdown("---")  
 
         st.subheader("Solicitações Tratadas")
