@@ -82,7 +82,7 @@ def gerar_link_download(caminho_arquivo):
 if not os.path.exists(REQ_FILE):
     pd.DataFrame(columns=[
         'Número Solicitação', 'Nome do Solicitante', 'Métier', 'Tipo', 'Itens',
-        'Linha de Projeto', 'Produto Novo ou Previsto', 'Demanda Nova ou Prevista', 
+        'Linha de Projeto', 'Produto Novo ou Backup', 'Demanda Nova ou Prevista', 
         'Valor Total', 'Caminho Orçamento', 'Comentários', 'Riscos', 'Status', 
         'Data Solicitação', 'Tipo de Compra'
     ]).to_csv(REQ_FILE, index=False)
@@ -119,7 +119,7 @@ if aba == "Nova Solicitação de Requisição":
     nome = st.text_input("Nome do Solicitante")
     metier = st.text_input("Métier")
     tipo = st.radio("É serviço ou produto?", ["Serviço", "Produto"])
-    novo_previsto = st.selectbox("É produto novo ou backup?", ["", "Novo", "Backup"], index=0)
+    novo_backup = st.selectbox("É produto novo ou backup?", ["", "Novo", "Backup"], index=0)
     demanda_tipo = st.radio("É uma demanda nova ou prevista?", ["Nova", "Prevista"])
     projeto = st.text_input("Linha de Projeto")
     tipo_compra = st.radio("A compra é:", [
@@ -355,7 +355,7 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
                     st.write(f"**Métier:** {row['Métier']}")
                     st.write(f"**Tipo:** {row['Tipo']}")
-                    st.write(f"**Produto Novo ou Previsto:** {row['Produto Novo ou Previsto']}")
+                    st.write(f"**Produto Novo ou Backup:** {row['Produto Novo ou Backup']}")
                     st.write(f"**Demanda Nova ou Prevista:** {row['Demanda Nova ou Prevista']}")
                     st.write(f"**Linha de Projeto:** {row['Linha de Projeto']}")
                     st.write(f"**Tipo de Compra:** {row['Tipo de Compra']}")
