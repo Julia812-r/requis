@@ -182,21 +182,21 @@ if aba == "Nova Solicitação de Requisição":
                     f.write(orcamento.read())
 
             nova_linha = pd.DataFrame([{
-                'Número Solicitação': numero,
-                'Nome do Solicitante': nome,
-                'Métier': metier,
-                'Tipo': tipo,
-                'Itens': str(st.session_state.itens),
-                'Linha de Projeto': projeto,
-                'Produto Novo ou Previsto': novo_previsto,
-                'Demanda Nova ou Prevista': demanda_tipo,
-                'Valor Total': valor_total,
-                'Caminho Orçamento': caminho_arquivo,
-                'Comentários': comentarios,
-                'Riscos': riscos,
-                'Status': 'Aprovação Comitê de Compras',
-                'Data Solicitação': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                'Tipo de Compra': tipo_compra
+                'numero_solicitacao': numero,
+                'nome_solicitante': nome,
+                'metier': metier,
+                'tipo': tipo,
+                'itens': str(st.session_state.itens),
+                'linha_projeto': projeto,
+                'produto_novo_ou_backup': novo_previsto,
+                'demanda_tipo': demanda_tipo,
+                'valor_total': valor_total,
+                'caminho_orcamento': caminho_arquivo,
+                'comentarios': comentarios,
+                'riscos': riscos,
+                'status': 'Aprovação Comitê de Compras',
+                'data_solicitacao': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'tipo_compra': tipo_compra
             }])
 
             db.collection("requisicoes").add(nova_linha.to_dict(orient='records')[0])
@@ -293,11 +293,11 @@ elif aba == "Histórico (Acesso Restrito)":
 
         filtro_nome = st.text_input("Filtrar por nome (opcional)").strip()
         if filtro_nome:
-            df = df[df['Nome do Solicitante'].str.lower().str.contains(filtro_nome.lower())]
+            df = df[df['nome_solicitante'].str.lower().str.contains(filtro_nome.lower())]
 
         filtro_numero = st.text_input("Filtrar por número da solicitação (opcional)").strip()
         if filtro_numero:
-            df = df[df['Número Solicitação'].str.upper() == filtro_numero.upper()]
+            df = df[df['numero_solicitacao'].str.upper() == filtro_numero.upper()]
 
         # Separar as solicitações ainda não tratadas e tratadas
         nao_tratadas = df[df['Status'] == "Aprovação Comitê de Compras"]
@@ -311,15 +311,15 @@ elif aba == "Histórico (Acesso Restrito)":
             import ast
             for i, row in nao_tratadas.iterrows():
                 with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
-                    st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
-                    st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
-                    st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
+                    st.write(f"**Número Solicitação:** {row['numero_solicitacao']}")
+                    st.write(f"**Data Solicitação:** {row['data_solicitacao']}")
+                    st.write(f"**Nome do Solicitante:** {row['nome_solicitante']}")
                     st.write(f"**Métier:** {row['Métier']}")
                     st.write(f"**Tipo:** {row['Tipo']}")
-                    st.write(f"**Produto Novo ou Previsto:** {row['Produto Novo ou Previsto']}")
-                    st.write(f"**Demanda Nova ou Prevista:** {row['Demanda Nova ou Prevista']}")
-                    st.write(f"**Linha de Projeto:** {row['Linha de Projeto']}")
-                    st.write(f"**Tipo de Compra:** {row['Tipo de Compra']}")
+                    st.write(f"**Produto Novo ou Backup:** {row['produto_novo_ou_backup']}")
+                    st.write(f"**Demanda Nova ou Prevista:** {row['demanda_tipo']}")
+                    st.write(f"**Linha de Projeto:** {row['linha_projeto']}")
+                    st.write(f"**Tipo de Compra:** {row['tipo_compra']}")
                     # Formatar itens bonitinho
                     try:
                         itens_lista = ast.literal_eval(row['Itens'])
@@ -335,12 +335,12 @@ elif aba == "Histórico (Acesso Restrito)":
                         else:
                             st.write(f"**Itens:** {row['Itens']}")
                     except:
-                        st.write(f"**Itens:** {row['Itens']}")
-                    st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
-                    st.write(f"**Riscos:** {row['Riscos']}")
-                    st.write(f"**Comentários:** {row['Comentários']}")
-                    st.write(f"**Status:** {row['Status']}")
-                    st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
+                        st.write(f"**Itens:** {row['itens']}")
+                    st.write(f"**Valor Total:** R$ {row['valor_total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
+                    st.write(f"**Riscos:** {row['riscos']}")
+                    st.write(f"**Comentários:** {row['comentarios']}")
+                    st.write(f"**Status:** {row['status']}")
+                    st.markdown(gerar_link_download(row['caminho_orcamento']), unsafe_allow_html=True)
                     st.markdown("---")  
 
         st.subheader("Solicitações Tratadas")
@@ -390,7 +390,7 @@ elif aba == "Histórico (Acesso Restrito)":
             "Solicitação Recusada", "Cancelado"
         ])
         if st.button("Atualizar Status"):
-            docs = list(db.collection("requisicoes").where("Número Solicitação", "==", numero_req_atualizar).stream())
+            docs = list(db.collection("requisicoes").where("numero_solicitacao", "==", numero_req_atualizar).stream())
             if docs:
                 for doc in docs:
                     db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
