@@ -434,4 +434,4 @@ elif aba == "Histórico (Acesso Restrito)":
                 st.success(f"Solicitação do almoxarifado de índice {index_almox} excluída com sucesso!")
 
     elif senha != "":
-        st.error("Senha incorreta.")            eu queria que ao inves de na aba historico tivesse ali um campo para colocar a solicitação que vc quer excluir ou atualizar, existisse em cada solicitação um icone de excluir e outro de atualizar status
+        st.error("Senha incorreta.")         
