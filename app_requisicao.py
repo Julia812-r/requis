@@ -350,25 +350,27 @@ elif aba == "Histórico (Acesso Restrito)":
                     col1, col2 = st.columns([0.15, 0.15])
                     with col1:
                         if st.button("💾 Atualizar", key=f"btn_update_nao_tratadas_{i}"):
-                            indices = df.index[(df['Número Solicitação'].str.strip().str.upper() == row['Número Solicitação'].strip().upper())]
+                            numero_solicitacao = str(row['Número Solicitação']) if pd.notna(row['Número Solicitação']) else ""
+                            indices = df.index[(df['Número Solicitação'].fillna("").str.strip().str.upper() == numero_solicitacao.strip().upper())]
                             if len(indices) > 0:
                                 doc_id = docs[indices[0]].id
                                 db.collection("requisicoes").document(doc_id).update({"Status": novo_status})
-                                st.success(f"Status da solicitação {row['Número Solicitação']} atualizado para {novo_status}")
+                                st.success(f"Status da solicitação {numero_solicitacao} atualizado para {novo_status}")
                                 st.experimental_rerun()
                             else:
-                                st.error(f"Documento para solicitação {row['Número Solicitação']} não encontrado no banco de dados.")
+                                st.error(f"Documento para solicitação {numero_solicitacao} não encontrado no banco de dados.")
 
                     with col2:
                         if st.button("🗑️ Excluir", key=f"btn_delete_nao_tratadas_{i}"):
-                            indices = df.index[(df['Número Solicitação'].str.strip().str.upper() == row['Número Solicitação'].strip().upper())]
+                            numero_solicitacao = str(row['Número Solicitação']) if pd.notna(row['Número Solicitação']) else ""
+                            indices = df.index[(df['Número Solicitação'].fillna("").str.strip().str.upper() == numero_solicitacao.strip().upper())]
                             if len(indices) > 0:
                                 doc_id = docs[indices[0]].id
                                 db.collection("requisicoes").document(doc_id).delete()
-                                st.success(f"Solicitação {row['Número Solicitação']} excluída com sucesso!")
+                                st.success(f"Solicitação {numero_solicitacao} excluída com sucesso!")
                                 st.experimental_rerun()
                             else:
-                                st.error(f"Documento para solicitação {row['Número Solicitação']} não encontrado no banco de dados.")
+                                st.error(f"Documento para solicitação {numero_solicitacao} não encontrado no banco de dados.")
 
         st.subheader("Solicitações Tratadas")
         if tratadas.empty:
@@ -423,25 +425,27 @@ elif aba == "Histórico (Acesso Restrito)":
                     col1, col2 = st.columns([0.15, 0.15])
                     with col1:
                         if st.button("💾 Atualizar", key=f"btn_update_tratadas_{i}"):
-                            indices = df.index[(df['Número Solicitação'].str.strip().str.upper() == row['Número Solicitação'].strip().upper())]
+                            numero_solicitacao = str(row['Número Solicitação']) if pd.notna(row['Número Solicitação']) else ""
+                            indices = df.index[(df['Número Solicitação'].fillna("").str.strip().str.upper() == numero_solicitacao.strip().upper())]
                             if len(indices) > 0:
                                 doc_id = docs[indices[0]].id
                                 db.collection("requisicoes").document(doc_id).update({"Status": novo_status})
-                                st.success(f"Status da solicitação {row['Número Solicitação']} atualizado para {novo_status}")
+                                st.success(f"Status da solicitação {numero_solicitacao} atualizado para {novo_status}")
                                 st.experimental_rerun()
                             else:
-                                st.error(f"Documento para solicitação {row['Número Solicitação']} não encontrado no banco de dados.")
+                                st.error(f"Documento para solicitação {numero_solicitacao} não encontrado no banco de dados.")
 
                     with col2:
                         if st.button("🗑️ Excluir", key=f"btn_delete_tratadas_{i}"):
-                            indices = df.index[(df['Número Solicitação'].str.strip().str.upper() == row['Número Solicitação'].strip().upper())]
+                            numero_solicitacao = str(row['Número Solicitação']) if pd.notna(row['Número Solicitação']) else ""
+                            indices = df.index[(df['Número Solicitação'].fillna("").str.strip().str.upper() == numero_solicitacao.strip().upper())]
                             if len(indices) > 0:
                                 doc_id = docs[indices[0]].id
                                 db.collection("requisicoes").document(doc_id).delete()
-                                st.success(f"Solicitação {row['Número Solicitação']} excluída com sucesso!")
+                                st.success(f"Solicitação {numero_solicitacao} excluída com sucesso!")
                                 st.experimental_rerun()
                             else:
-                                st.error(f"Documento para solicitação {row['Número Solicitação']} não encontrado no banco de dados.")
+                                st.error(f"Documento para solicitação {numero_solicitacao} não encontrado no banco de dados.")
 
         # Histórico Almoxarifado
         st.subheader("Histórico de Solicitações ao Almoxarifado")
