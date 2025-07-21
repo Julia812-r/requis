@@ -313,7 +313,7 @@ elif aba == "Histórico (Acesso Restrito)":
                 with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
                     st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
                     st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
-                    st.write(f"**Nome do Solicitante:** {row['Nome do solicitante']}")
+                    st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
                     st.write(f"**Métier:** {row['Métier']}")
                     st.write(f"**Tipo:** {row['Tipo']}")
                     st.write(f"**Produto Novo ou Backup:** {row['Produto Novo ou Backup']}")
