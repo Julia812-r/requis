@@ -182,7 +182,7 @@ if aba == "Nova Solicitação de Requisição":
                     f.write(orcamento.read())
 
             nova_linha = pd.DataFrame([{
-                'Número Solicitacao': numero,
+                'Número Solicitação': numero,
                 'Nome do Solicitante': nome,
                 'Métier': metier,
                 'Tipo': tipo,
