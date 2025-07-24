@@ -382,43 +382,45 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.markdown("---")
                     
        
-            st.subheader("Solicitações a Serem Reapresentadas")
-            reapresentar = df[df["Status"] == "Reapresentar"]
-            reapresentar = reapresentar.sort_values("Data Solicitação", ascending=False
+        st.subheader("Solicitações a Serem Reapresentadas")
+        reapresentar = df[df["Status"] == "Reapresentar"].sort_values("Data Solicitação", ascending=False)
 
+        if reapresentar.empty:
+            st.info("Não há solicitações com status 'Reapresentar'.")
+        else:
+            import ast
+            for i, row in reapresentar.iterrows():
+                with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
+                    st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
+                    st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
+                    st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
+                    st.write(f"**Departamento:** {row['Departamento']}")
+                    st.write(f"**Responsável:** {row['Responsável']}")
+                    st.write(f"**Descrição:** {row['Descrição']}")
+                    st.write(f"**Valor Estimado:** R$ {row['Valor Estimado']}")
+                    st.write(f"**Status:** {row['Status']}")
 
-        for i, row in reapresentar.iterrows():
-            with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
-                st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
-                st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
-                st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
-                st.write(f"**Departamento:** {row['Departamento']}")
-                st.write(f"**Responsável:** {row['Responsável']}")
-                st.write(f"**Descrição:** {row['Descrição']}")
-                st.write(f"**Valor Estimado:** R$ {row['Valor Estimado']}")
-                st.write(f"**Status:** {row['Status']}")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        novo_status = st.selectbox(f"Atualizar status ({row['Número Solicitação']})", [
+                            "Aprovação Comitê de Compras", "Criação da RC", "Aprovação Fabio Silva",
+                            "Aprovação Federico Mateos", "Criação Pedido de Compra", "Aguardando Nota fiscal",
+                            "Aguardando entrega", "Entregue", "Serviço realizado", "Pago",
+                            "Solicitação Recusada", "Cancelado", "Reapresentar"
+                         ], key=f"status_reap_{row['Número Solicitação']}")
+                         if st.button("🔄 Atualizar Status", key=f"btn_atualizar_reap_{row['Número Solicitação']}"):
+                             docs = list(db.collection("requisicoes").where("Número Solicitação", "==", row['Número Solicitação']).stream())
+                             for doc in docs:
+                                 db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
+                             st.success(f"Status atualizado para {novo_status}!")
 
-                col1, col2 = st.columns(2)
-                with col1:
-                    novo_status = st.selectbox(f"Atualizar status ({row['Número Solicitação']})", [
-                        "Aprovação Comitê de Compras", "Criação da RC", "Aprovação Fabio Silva",
-                        "Aprovação Federico Mateos", "Criação Pedido de Compra", "Aguardando Nota fiscal",
-                        "Aguardando entrega", "Entregue", "Serviço realizado", "Pago",
-                         "Solicitação Recusada", "Cancelado", "Reapresentar"
-                    ], key=f"status_reap_{row['Número Solicitação']}")
-                    if st.button("🔄 Atualizar Status", key=f"btn_atualizar_reap_{row['Número Solicitação']}"):
-                        docs = list(db.collection("requisicoes").where("Número Solicitação", "==", row['Número Solicitação']).stream())
-                        for doc in docs:
-                            db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
-                        st.success(f"Status atualizado para {novo_status}!")
-
-                 with col2:
-                     if st.button("🗑️ Excluir Solicitação", key=f"btn_excluir_reap_{row['Número Solicitação']}"):
-                         docs = list(db.collection("requisicoes").where("Número Solicitação", "==", row['Número Solicitação']).stream())
-                         for doc in docs:
-                             db.collection("requisicoes").document(doc.id).delete()
-                         st.success(f"Solicitação {row['Número Solicitação']} excluída com sucesso!")
-                         st.experimental_rerun()
+                     with col2:
+                         if st.button("🗑️ Excluir Solicitação", key=f"btn_excluir_reap_{row['Número Solicitação']}"):
+                             docs = list(db.collection("requisicoes").where("Número Solicitação", "==", row['Número Solicitação']).stream())
+                             for doc in docs:
+                                 db.collection("requisicoes").document(doc.id).delete()
+                             st.success(f"Solicitação {row['Número Solicitação']} excluída com sucesso!")
+                             st.experimental_rerun()
 
 
 
