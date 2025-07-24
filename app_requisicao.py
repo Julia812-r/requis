@@ -381,8 +381,7 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
                     st.markdown("---")
                     
-        # Solicitações a serem reapresentadas
-        elif opcao == "Reapresentar Status Histórico":
+       
             st.subheader("Solicitações a Serem Reapresentadas")
             reapresentar = df[df["Status"] == "Reapresentar"]
             reapresentar = reapresentar.sort_values("Data Solicitação", ascending=False
