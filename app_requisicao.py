@@ -394,11 +394,26 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
                     st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
                     st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
-                    st.write(f"**Departamento:** {row['Departamento']}")
-                    st.write(f"**Responsável:** {row['Responsável']}")
-                    st.write(f"**Descrição:** {row['Descrição']}")
-                    st.write(f"**Valor Estimado:** R$ {row['Valor Estimado']}")
-                    st.write(f"**Status:** {row['Status']}")
+                    st.write(f"**Métier:** {row['Métier']}")
+                    st.write(f"**Tipo:** {row['Tipo']}")
+                    st.write(f"**Produto Novo ou Backup:** {row.get('Produto Novo ou Backup')}")
+                    st.write(f"**Demanda Nova ou Prevista:** {row['Demanda Nova ou Prevista']}")
+                    st.write(f"**Linha de Projeto:** {row['Linha de Projeto']}")
+                    st.write(f"**Tipo de Compra:** {row['Tipo de Compra']}")
+                    try:
+                        itens_lista = ast.literal_eval(row['Itens'])
+                        if isinstance(itens_lista, list):
+                            st.write("**Itens:**")
+                            for idx, item in enumerate(itens_lista, start=1):
+                                st.markdown(
+                                    f"{idx}. **Descrição:** {item['Descrição']} | "
+                                    f"**Qtd:** {item['Quantidade']} | "
+                                    f"**Unitário:** R$ {item['Valor Unitário']:.2f} | "
+                                    f"**Subtotal:** R$ {item['Subtotal']:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
+                                 )
+
+                    
+
 
                     col1, col2 = st.columns(2)
                     with col1:
