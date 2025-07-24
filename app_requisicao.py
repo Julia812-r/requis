@@ -412,6 +412,9 @@ elif aba == "Histórico (Acesso Restrito)":
                                     f"**Subtotal:** R$ {item['Subtotal']:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
                                  )
 
+                    except Exception as e:
+                        st.warning(f"Erro ao interpretar itens: {e}")
+
                     col1, col2 = st.columns(2)
                     with col1:
                         novo_status = st.selectbox(f"Atualizar status ({row['Número Solicitação']})", [
