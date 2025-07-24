@@ -383,9 +383,9 @@ elif aba == "Histórico (Acesso Restrito)":
                     
         # Solicitações a serem reapresentadas
         elif opcao == "Reapresentar Status Histórico":
-        st.subheader("Solicitações a Serem Reapresentadas")
-        reapresentar = df[df["Status"] == "Reapresentar"]
-        reapresentar = reapresentar.sort_values("Data Solicitação", ascending=False
+            st.subheader("Solicitações a Serem Reapresentadas")
+            reapresentar = df[df["Status"] == "Reapresentar"]
+            reapresentar = reapresentar.sort_values("Data Solicitação", ascending=False
 
 
         for i, row in reapresentar.iterrows():
