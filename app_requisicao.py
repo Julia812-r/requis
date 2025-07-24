@@ -382,45 +382,48 @@ elif aba == "Histórico (Acesso Restrito)":
                     st.markdown("---")
                     
         # Solicitações a serem reapresentadas
+        elif opcao == "Reapresentar Status Histórico":
         st.subheader("Solicitações a Serem Reapresentadas")
-        reapresentar = df[df['Status'] == "Reapresentar"]
+        reapresentar = df[df["Status"] == "Reapresentar"]
+        reapresentar = reapresentar.sort_values("Data Solicitação", ascending=False
 
-        if reapresentar.empty:
-            st.info("Não há solicitações marcadas para reapresentação.")
-        else:
-            import ast
-            for i, row in reapresentar.iterrows():
-                with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
-                    st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
-                    st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
-                    st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
-                    st.write(f"**Métier:** {row['Métier']}")
-                    st.write(f"**Tipo:** {row['Tipo']}")
-                    st.write(f"**Produto Novo ou Backup:** {row.get('Produto Novo ou Backup', 'Não informado')}")
-                    st.write(f"**Demanda Nova ou Prevista:** {row['Demanda Nova ou Prevista']}")
-                    st.write(f"**Linha de Projeto:** {row['Linha de Projeto']}")
-                    st.write(f"**Tipo de Compra:** {row['Tipo de Compra']}")
-                    try:
-                        itens_lista = ast.literal_eval(row['Itens'])
-                        if isinstance(itens_lista, list):
-                            st.write("**Itens:**")
-                            for idx, item in enumerate(itens_lista, start=1):
-                                st.markdown(
-                                    f"{idx}. **Descrição:** {item['Descrição']} | "
-                                    f"**Qtd:** {item['Quantidade']} | "
-                                    f"**Unitário:** R$ {item['Valor Unitário']:.2f} | "
-                                    f"**Subtotal:** R$ {item['Subtotal']:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
-                                 )
-                        else:
-                            st.write(f"**Itens:** {row['Itens']}")
-                    except:
-                        st.write(f"**Itens:** {row['Itens']}")
-                        st.write(f"**Valor Total:** R$ {row['Valor Total']:,.2f}".replace(",", "v").replace(".", ",").replace("v", "."))
-                        st.write(f"**Riscos:** {row['Riscos']}")
-                        st.write(f"**Comentários:** {row['Comentários']}")
-                        st.write(f"**Status:** {row['Status']}")
-                        st.markdown(gerar_link_download(row['Caminho Orçamento']), unsafe_allow_html=True)
-                        st.markdown("---")
+
+        for i, row in reapresentar.iterrows():
+            with st.expander(f"Solicitação: {row['Número Solicitação']} — {row['Nome do Solicitante']}"):
+                st.write(f"**Número Solicitação:** {row['Número Solicitação']}")
+                st.write(f"**Data Solicitação:** {row['Data Solicitação']}")
+                st.write(f"**Nome do Solicitante:** {row['Nome do Solicitante']}")
+                st.write(f"**Departamento:** {row['Departamento']}")
+                st.write(f"**Responsável:** {row['Responsável']}")
+                st.write(f"**Descrição:** {row['Descrição']}")
+                st.write(f"**Valor Estimado:** R$ {row['Valor Estimado']}")
+                st.write(f"**Status:** {row['Status']}")
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    novo_status = st.selectbox(f"Atualizar status ({row['Número Solicitação']})", [
+                        "Aprovação Comitê de Compras", "Criação da RC", "Aprovação Fabio Silva",
+                        "Aprovação Federico Mateos", "Criação Pedido de Compra", "Aguardando Nota fiscal",
+                        "Aguardando entrega", "Entregue", "Serviço realizado", "Pago",
+                         "Solicitação Recusada", "Cancelado", "Reapresentar"
+                    ], key=f"status_reap_{row['Número Solicitação']}")
+                    if st.button("🔄 Atualizar Status", key=f"btn_atualizar_reap_{row['Número Solicitação']}"):
+                        docs = list(db.collection("requisicoes").where("Número Solicitação", "==", row['Número Solicitação']).stream())
+                        for doc in docs:
+                            db.collection("requisicoes").document(doc.id).update({"Status": novo_status})
+                        st.success(f"Status atualizado para {novo_status}!")
+
+                 with col2:
+                     if st.button("🗑️ Excluir Solicitação", key=f"btn_excluir_reap_{row['Número Solicitação']}"):
+                         docs = list(db.collection("requisicoes").where("Número Solicitação", "==", row['Número Solicitação']).stream())
+                         for doc in docs:
+                             db.collection("requisicoes").document(doc.id).delete()
+                         st.success(f"Solicitação {row['Número Solicitação']} excluída com sucesso!")
+                         st.experimental_rerun()
+
+
+
+        
 
                 
                 
